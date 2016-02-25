@@ -18,9 +18,10 @@ bool operator<(const MortonPoint &a, const MortonPoint &b) {
     return a.code[a.code.size() - 1] < b.code[b.code.size() - 1];
 }
 
-/*------------------------*
- |  Constructors          |
- *------------------------*/
+/*-------------------------------------*
+ |  Morton Point Constructors          |
+ *-------------------------------------*/
+int MortonPoint::id = 0;
 
 MortonPoint::MortonPoint(const vector<double> pt, int min, int max) {
     point = pt;
@@ -51,12 +52,13 @@ MortonPoint::MortonPoint(const vector<double> pt, int min, int max) {
         // decrement coord index
         coord_index = (coord_index + 1) % (pt.size());
     }
+    p_id = id;
+    id++;
 }
 
-
-/*-----------------------*
- |  Constructors         |
- *-----------------------*/
+/*-----------------------------------*
+ |  Morton Code Constructors         |
+ *-----------------------------------*/
 
 MortonCode::MortonCode(const vector<vector<double>> &points) {
     bbox_max = 1;
@@ -78,9 +80,9 @@ MortonCode::MortonCode(const vector<vector<double>> &points,
     }
 }
 
-/*-----------------------*
- |  Class Methods        |
- *-----------------------*/
+/*-----------------------------------*
+ |  Morton Code Class Methods        |
+ *-----------------------------------*/
 
 void MortonCode::add(vector<double> pt) {
     MortonPoint mp = MortonPoint(pt, bbox_min, bbox_max);

@@ -21,7 +21,9 @@ using std::cout;
 using std::endl;
 
 class MortonPoint {
+    static int id;
  public:
+    int p_id;
     vector<double> point;
     // for the bit interleaving we need len(point) * 64 bits
     // which are stored here (in Big Endian)
