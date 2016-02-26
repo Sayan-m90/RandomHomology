@@ -41,11 +41,13 @@ void Utilities::CreateRandomPoints(vector<vector<double>> &pts,
 
 // TODO(me): Generalize for higher dimensions
 void Utilities::ReadInGICPoints(vector<vector<double>> &pts,
-                                double &min, double &maxes,
+                                double &min_n, double &max_n,
                                 int &dim, string fp) {
     ifstream input(fp);
     bool done = false;
     int num_points;
+    min_n = std::numeric_limits<double>::max();
+    max_n = std::numeric_limits<double>::min();
 
     if (input.is_open()) {
         // get the first line (dim, num pts)
@@ -73,11 +75,14 @@ void Utilities::ReadInGICPoints(vector<vector<double>> &pts,
             getline(input, sy, ' ');
             getline(input, sz);
             ss << sx << sy << sz;
-
+            
             x = stod(sx);
             y = stod(sy);
             z = stod(sz);
 
+            min_n = min(min_n, min(x, min(y, z)));
+            max_n = max(max_n, max(x, max(y, z)));
+            
             // create point
             vector<double> pt;
             pt.push_back(x);
@@ -91,3 +96,27 @@ void Utilities::ReadInGICPoints(vector<vector<double>> &pts,
         }
     }
 }
+
+ANNkd_tree* Utilities::ConstructKDTree(vector<vector<double>> pts, int dim) {
+    int max_points = pts.size();
+    ANNpointArray data_points;
+    data_points = annAllocPts(max_points, dim);
+    
+    // pts to data points
+    for (int i = 0; i < max_points; i++) {
+        ANNpoint new_p = annAllocPt(dim);
+        vector<double> current_pt = pts[i];
+        new_p[0] = current_pt[0];
+        new_p[1] = current_pt[1];
+        new_p[2] = current_pt[0];
+        data_points[i] = new_p;
+    }
+    // create and return the kdtree
+    return new ANNkd_tree(data_points,
+                          max_points,
+                          dim);
+}
+
+
+
+

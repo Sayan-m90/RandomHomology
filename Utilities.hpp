@@ -16,6 +16,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include "ANN/ANN.h"
+#include "MortonCode.hpp"
 
 using std::string;
 using std::vector;
@@ -23,9 +25,13 @@ using std::ifstream;
 using std::stringstream;
 using std::cout;
 using std::endl;
+using std::min;
+using std::max;
 
 class Utilities {
 public:
+    
+    static ANNkd_tree *ConstructKDTree(vector<vector<double>>, int dim);
     static void ReadInGICPoints(vector<vector<double>> &pts,
                                 double &mins,double &maxes,
                                 int &dim, string gic_fp);

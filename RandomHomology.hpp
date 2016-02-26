@@ -9,20 +9,29 @@
 #ifndef RandomHomology_hpp
 #define RandomHomology_hpp
 
+#include <set>
 #include <stdio.h>
 #include <vector>
+#include <math.h>
+#include "ANN/ANN.h"
 #include "MortonCode.hpp"
 #include "Utilities.hpp"
+
+using std::set;
 
 class RandomHomology {
 public:
     int dim;
     MortonCode *mc;
+    ANNkd_tree *kd_tree;
+    set<int>removed_ids;
+    vector<vector<double>> initial_points;
     RandomHomology(vector<vector<double>> &points,
                    vector<double> &min_bounds,
                    vector<double> &max_bounds, int dim);
     ~RandomHomology() {};
     void run(double alpha);
+    void collapseToClosest(MortonPoint p);
 };
 
 #endif /* RandomHomology_hpp */

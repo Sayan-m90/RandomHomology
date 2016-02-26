@@ -33,12 +33,14 @@ class MortonPoint {
     ~MortonPoint() {}
 };
 
+bool operator<(const MortonPoint &a, const MortonPoint &b);
+
 class MortonCode {
  protected:
-    priority_queue<MortonPoint> queue;
     double bbox_min, bbox_max;
 
  public:
+    priority_queue<MortonPoint> queue;
     explicit MortonCode(const vector<vector<double>> &points);
     MortonCode(const vector<vector<double>> &points,
                const vector<double> &min_bounds,
@@ -46,8 +48,12 @@ class MortonCode {
     ~MortonCode() {}
 
     void add(vector<double> pt);
+    void add(MortonPoint pt);
     vector<double> next();
+    MortonPoint nextPoint();
+    void setPoints(vector<MortonPoint> pts);
     bool empty();
+    int size();
 };
 
 #endif /* MortonCode_hpp */
