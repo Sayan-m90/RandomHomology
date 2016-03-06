@@ -16,8 +16,13 @@ using std::string;
 
 class Constants {
 public:
+    const static char* VERTEX_SHADER;
+    const static char* FRAGMENT_SHADER;
+    const static char* VERTEX_SHADER_GIC;
+    const static char* FRAGMENT_SHADER_GIC;
     const static int GIC_MAX_DIM_SIZE;
     const static int MORTON_CODE_MULTIPLIER;
+    const static int MOUSE_SPEED;
     const static string SEPARATOR_STR;
 };
 

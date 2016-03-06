@@ -37,7 +37,7 @@ int main(int argc, const char * argv[]) {
 //    Viewer v;
 //    v.DrawMortonCode(*mc);
 
-    GIC g("/Users/billvarcho/Desktop/Data/PinchedTorus/out_complex.txt");
+    GIC g("/Users/billvarcho/Desktop/Data/Torus/out_torus_complex.txt");
     std::vector<Operation*> collapses;
     RandomHomology r(g);
     r.run(.7, collapses);
@@ -45,9 +45,10 @@ int main(int argc, const char * argv[]) {
         t->Print();
     }
     MortonCode *mc = new MortonCode(g);
-    Viewer v;
-//    v.DrawPoints(g.pts);
-    v.DrawMortonCode(*mc);
+    Viewer v1;
+    Viewer v2;
+    v1.DrawPoints(g.pts);
+    v2.DrawMortonCode(*mc);
     
 //    GIC g("/Users/billvarcho/Desktop/Data/outfile.txt_complex.txt");
 //    //GIC g;

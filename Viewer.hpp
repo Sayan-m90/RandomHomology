@@ -23,7 +23,7 @@
 #include <cstdlib>
 #include <vector>
 #include <math.h>
-#include <pthread.h>
+#include <thread>
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -35,43 +35,49 @@
 #include "MortonCode.hpp"
 #include "Vertex.hpp"
 #include "Collapse.hpp"
+#include "Constants.hpp"
 
 using std::vector;
 
 struct Mouse{
-    bool isDown;
-    int lastX, lastY;
+    bool is_down;
+    int last_X, last_Y;
     int dx, dy;
     int x, y;
 };
 
 class Viewer {
 private:
-    GLFWwindow *window;
-    GLuint shaderProgram;
-    GLenum mode = GL_POINTS; // Drawing Mode (Points, Lines, Tris)
-    glm::mat4 model, view, projection;
-    glm::vec3 cam_pos, cam_up, cam_front;
+    bool draw_gic = false;
+    bool first_mouse = true;
     bool keys[1024];
+    bool points_given = false;
+    float time = 0.0;
+    float view_scale;
+    GLenum mode = GL_POINTS; // Drawing Mode (Points, Lines, Tris)
     GLfloat deltaTime = 0.0f;  // Time between current frame and last frame
     GLfloat lastFrame = 0.0f;  // Time of last frame
     GLfloat lastX = 400, lastY = 300;
     GLfloat fov;
     GLfloat yaw = 0.0, pitch = 0.0;
     GLint num_points, dim;
-    bool firstMouse = true;
-    bool points_given = false;
-    bool draw_gic = false;
-    vector<Vertex> vertices;
-    vector<int> pt_indices;
-    vector<int> line_indices;
-    vector<int> tri_indices;
-    //vector<GLfloat> vertices_position;
-    //vector<GLfloat> vertices_color;
-    GLuint positionID, colorID, normalID;
+    GLint WIDTH, HEIGHT;
+    GLuint position_ID, color_ID, normal_ID;
+    GLuint shaderProgram;
+    glm::mat4 model, projection, view;
+    glm::vec3 cam_pos, cam_up, cam_front;
+    glm::quat tmpRot;
+    glm::quat mRot;
+    GLFWwindow *window;
+    int keyCode;
+    int draw_type = 0;
+    Mouse mouse;
     string filepath;
-    float time = 0.0;
-
+    vector<Vertex> vertices;
+    vector<int> line_indices;
+    vector<int> pt_indices;
+    vector<int> tri_indices;
+    
     // Read a shader source from a file
     // store the shader source in a std::vector<char>
     void read_shader_src(const char *fname, std::vector<char> &buffer);
@@ -89,43 +95,30 @@ private:
     void keyboard(int key, int action);
 
     // Render scene
-    void display(GLuint &vao);
+    //void display(GLuint &vao);
 
     // Initialize the data to be rendered
     void initialize(GLuint &vao);
-
-    // callback for errors
-    void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
-
-    // mouse callback
-    void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-
-    // mouse callback
-    void mouse_down_callback(GLFWwindow* window, double xpos, double ypos);
-
-    static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-
-    // Error callback for logging errors
+    
+    // GLFW Window Callbacks
+    static void mouse_down_callback(GLFWwindow* window, int button, int action, int mods);
+    static void mouse_drag_callback(GLFWwindow* window, int x, int y);
+    static void mouse_move_callback(GLFWwindow* window, double x, double y);
     static void error_callback(int error, const char* description);
+    static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
     void do_movement();
     void draw_font(string text, void* font, GLint x, GLint y, glm::vec3 col);
-
-    static void OnKeyDown(GLFWwindow* window, int key, int scancode, int action, int mods);
-    static void OnMouseDown(GLFWwindow* window, int button, int action, int mods);
-    static void OnMouseMove(GLFWwindow* window, double x, double y);
-    static void onMouseDrag(int x, int y);
-
-    void MainLoop();
-
-public:
-    static Mouse mouse;
-    static int keyCode;
-    static glm::quat tmpRot;
-    static glm::quat mRot;
-    static GLint WIDTH, HEIGHT;
-    static float view_scale;
     
+    void MainLoop();
+    void DisplayPoint(GLuint &vao);
+    void DisplayGIC(GLuint &vao);
+    void DrawText();
+    
+public:
+    Viewer();
+    ~Viewer() {};
     void DrawPoints(vector<vector<double>> pts);
     void DrawMortonCode(MortonCode &c);
     void DrawGIC(GIC &g);

@@ -10,8 +10,6 @@ data. The output is a file containing a sequence of collapses which can be used 
 GIC to compute 
 homology.
 
-
-
 # Installation
 ```
 echo "TODO";
@@ -19,13 +17,13 @@ echo "TODO";
 
 # Dependencies
 - ANN
+- Boost
+- GLUT
+- OpenGL
 
 # References
- - [Graph Induced Complex](http://web.cse.ohio-state.edu/~tamaldey/GIC/gic.html) Tamal 
-K. Dey, Fengtao Fan, Yusu Wang.
- - [Morton 
-Codes](http://www.forceflow.be/2013/10/07/morton-encodingdecoding-through-bit-interleaving-implementations/) 
-- Jeroen Baert
+ - [Graph Induced Complex](http://web.cse.ohio-state.edu/~tamaldey/GIC/gic.html) Tamal K. Dey, Fengtao Fan, Yusu Wang.
+ - [Morton Codes](http://www.forceflow.be/2013/10/07/morton-encodingdecoding-through-bit-interleaving-implementations/) Jeroen Baert
  - [Z-Order Curve](https://en.wikipedia.org/wiki/Z-order_curve) - Wikipedia
  - [SimPers](http://web.cse.ohio-state.edu/~tamaldey/SimpPers/SimpPers-software/)
 
