@@ -22,5 +22,27 @@ using std::cout;
 using std::endl;
 
 int main(int argc, const char * argv[]) {
+    // int dim = 3;
+    // vector<vector<double>> points;
+    // vector<double> mins;
+    // vector<double> maxes;
+    // double min, max;
+    // Utilities::CreateRandomPoints(points, mins, maxes, dim, 10000);
     
+    //GIC g("/Users/billvarcho/Desktop/Data/Torus/out_torus_complex.txt");
+    GIC g("/Users/billvarcho/Desktop/Data/BunnyDense/out_bunny_complex.txt");
+    vector<Operation*> collapses;
+    RandomHomology r(g);
+    r.run(.7, collapses);
+    for (const auto t: collapses) {
+        t->Print();
+    }
+    
+    //    MortonCode *mc = new MortonCode(g);
+    Viewer v1;
+    Viewer v2;
+    //    //v1.DrawPoints(g.pts);
+    //    //v1.DrawMortonCode(*mc);
+    //v1.DrawGIC(g);
+    v2.ViewCollapses(g, collapses);
 }

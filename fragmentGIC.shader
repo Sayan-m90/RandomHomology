@@ -5,5 +5,5 @@ varying vec4 dstColor;
 uniform vec4 ourColor;
 
 void main() {
-    gl_FragColor = dstColor;
+    gl_FragColor = vec4(dstColor.xyz, .8);
 }

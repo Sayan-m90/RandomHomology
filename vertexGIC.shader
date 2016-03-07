@@ -9,8 +9,8 @@ uniform mat4 view;
 uniform mat4 projection;
 uniform float t;
 void main() {
-    gl_PointSize = 8.0;
+    gl_PointSize = 4.0;
     vec4 smooth_pos = t*next_position + (1.0-t)*position;
     gl_Position = projection * view * model * (smooth_pos);
-    dstColor = vec4(.8, 0.0, .2, 1.0);
+    dstColor = vec4(color);
 }

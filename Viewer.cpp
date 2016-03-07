@@ -66,19 +66,19 @@ void Viewer::DisplayPoint(GLuint &vao) {
 void Viewer::DisplayCollapses(GLuint &vao) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(shaderProgram);
+    glLineWidth(1.0);
     
     GLfloat currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
     do_movement();
     
-    time += 5.0 * deltaTime;
+    time += 20.0 * deltaTime;
     if (time > 1.0) {
         time = time - 1.0;
         Vertex::updateIndices();
-        cout << Vertex::POS_INDEX << endl;
-        cout << Vertex::NEXT_POS_INDEX << endl;
     }
+    
     GLint timeLocation = glGetUniformLocation(shaderProgram, "t");
     GLfloat mod_time = fmodf(currentFrame, 1.0f);
     glUniform1f(timeLocation, mod_time);
@@ -122,6 +122,7 @@ void Viewer::DisplayCollapses(GLuint &vao) {
     
     glVertexAttribPointer( color_ID, 4, GL_FLOAT, GL_FALSE,
                           sizeof(Vertex),(void *)Vertex::offsetColor());
+    
     glVertexAttribPointer( normal_ID, 3, GL_FLOAT, GL_FALSE,
                           sizeof(Vertex),(void *)Vertex::offsetNormal());
     
@@ -131,6 +132,23 @@ void Viewer::DisplayCollapses(GLuint &vao) {
                           sizeof(Vertex), (void *)Vertex::offset_NEXT_POS());
     
     GLuint elementID_points, elementID_lines, elementID_tris;
+    
+    // Draw TRIS
+    // Below used for transparent drawing
+//    glEnable(GL_CULL_FACE);
+//    glDisable(GL_CULL_FACE);
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    glGenBuffers(1, &elementID_tris);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementID_tris);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, tri_indices.size()*sizeof(GLuint),
+                 &tri_indices.front(), GL_STATIC_DRAW);
+    glDrawElements(GL_TRIANGLES, tri_indices.size(), GL_UNSIGNED_INT, 0);
+
+    
+    glVertexAttribPointer( color_ID, 4, GL_FLOAT, GL_FALSE,
+                          sizeof(Vertex),(void *)Vertex::offsetColorOutline());
     
     // Draw VERTS
     glGenBuffers(1, &elementID_points);
@@ -146,13 +164,6 @@ void Viewer::DisplayCollapses(GLuint &vao) {
                  &line_indices.front(), GL_STATIC_DRAW);
     glDrawElements(GL_LINES, line_indices.size(), GL_UNSIGNED_INT, 0);
     
-    // Draw TRIS
-    glGenBuffers(1, &elementID_tris);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementID_tris);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, tri_indices.size()*sizeof(GLuint),
-                 &tri_indices.front(), GL_STATIC_DRAW);
-    
-    glDrawElements(GL_TRIANGLES, tri_indices.size(), GL_UNSIGNED_INT, 0);
     
     // DELETE THE BUFFERS TO
     glDeleteBuffers(1, &elementID_points);
@@ -184,10 +195,8 @@ void Viewer::DisplayGIC(GLuint &vao) {
     time += deltaTime;
     if (time > 1.0) {
         time = time - 1.0;
-        Vertex::updateIndices();
-        cout << Vertex::POS_INDEX << endl;
-        cout << Vertex::NEXT_POS_INDEX << endl;
     }
+    
     GLint timeLocation = glGetUniformLocation(shaderProgram, "t");
     GLfloat mod_time = fmodf(currentFrame, 1.0f);
     glUniform1f(timeLocation, mod_time);
@@ -231,6 +240,7 @@ void Viewer::DisplayGIC(GLuint &vao) {
     
     glVertexAttribPointer( color_ID, 4, GL_FLOAT, GL_FALSE,
                           sizeof(Vertex),(void *)Vertex::offsetColor());
+    
     glVertexAttribPointer( normal_ID, 3, GL_FLOAT, GL_FALSE,
                           sizeof(Vertex),(void *)Vertex::offsetNormal());
     
@@ -240,6 +250,23 @@ void Viewer::DisplayGIC(GLuint &vao) {
                           sizeof(Vertex), (void *)Vertex::offset_NEXT_POS());
     
     GLuint elementID_points, elementID_lines, elementID_tris;
+    
+    // Draw TRIS
+    // Below used for transparent drawing
+    //    glEnable(GL_CULL_FACE);
+    //    glDisable(GL_CULL_FACE);
+    //    glEnable(GL_BLEND);
+    //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    glGenBuffers(1, &elementID_tris);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementID_tris);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, tri_indices.size()*sizeof(GLuint),
+                 &tri_indices.front(), GL_STATIC_DRAW);
+    glDrawElements(GL_TRIANGLES, tri_indices.size(), GL_UNSIGNED_INT, 0);
+    
+    
+    glVertexAttribPointer( color_ID, 4, GL_FLOAT, GL_FALSE,
+                          sizeof(Vertex),(void *)Vertex::offsetColorOutline());
     
     // Draw VERTS
     glGenBuffers(1, &elementID_points);
@@ -255,13 +282,6 @@ void Viewer::DisplayGIC(GLuint &vao) {
                  &line_indices.front(), GL_STATIC_DRAW);
     glDrawElements(GL_LINES, line_indices.size(), GL_UNSIGNED_INT, 0);
     
-    // Draw TRIS
-    glGenBuffers(1, &elementID_tris);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementID_tris);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, tri_indices.size()*sizeof(GLuint),
-                 &tri_indices.front(), GL_STATIC_DRAW);
-    
-    glDrawElements(GL_TRIANGLES, tri_indices.size(), GL_UNSIGNED_INT, 0);
     
     // DELETE THE BUFFERS TO
     glDeleteBuffers(1, &elementID_points);
@@ -681,17 +701,15 @@ void Viewer::DrawGIC(GIC &g) {
                                     pt[1],
                                     pt[2],
                                     0.0);
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 2; i++) {
             v.positions[i] = glm::vec4(pt[0],
                                        pt[1],
                                        pt[2],
                                        0.0);
         }
         
-        v.color = glm::vec4((float)rand()/(float)RAND_MAX,
-                            (float)rand()/(float)RAND_MAX,
-                            (float)rand()/(float)RAND_MAX,
-                            1.0);
+        v.color = glm::vec4(.91, .0, .15, 1.0);
+        v.outline_color = glm::vec4(.62, .0, .1, 1.0);
         vertices.push_back(v);
     }    
     pt_indices = g.indices[0];
@@ -736,10 +754,8 @@ void Viewer::ViewCollapses(GIC &g, vector<Operation *> collapses) {
                                pt[1],
                                pt[2],
                                0.0);
-        v.color = glm::vec4((float)rand()/(float)RAND_MAX,
-                            (float)rand()/(float)RAND_MAX,
-                            (float)rand()/(float)RAND_MAX,
-                            1.0);
+        v.color = glm::vec4(.91, .0, .15, 1.0);
+        v.outline_color = glm::vec4(.62, .0, .1, 1.0);
         vertices.push_back(v);
     }
     
