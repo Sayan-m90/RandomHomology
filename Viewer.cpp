@@ -72,7 +72,7 @@ void Viewer::DisplayCollapses(GLuint &vao) {
     lastFrame = currentFrame;
     do_movement();
     
-    time += deltaTime;
+    time += 5.0 * deltaTime;
     if (time > 1.0) {
         time = time - 1.0;
         Vertex::updateIndices();
@@ -693,8 +693,7 @@ void Viewer::DrawGIC(GIC &g) {
                             (float)rand()/(float)RAND_MAX,
                             1.0);
         vertices.push_back(v);
-    }
-    
+    }    
     pt_indices = g.indices[0];
     line_indices = g.indices[1];
     tri_indices = g.indices[2];
@@ -705,8 +704,29 @@ void Viewer::DrawGIC(GIC &g) {
     MainLoop(GIC_LOOP);
 }
 
+
+/*-----------------------------------------*
+ | Helper function(s) for Viewing Collapses
+ *-----------------------------------------*/
+void collapse(int start, int end, vector<vector<int>> &v_map) {
+    vector<int> s = v_map[start];
+    vector<int> empty;
+    v_map[start] = empty;
+    v_map[end].insert(v_map[end].end(), s.begin(), s.end());
+}
+
+// Used for debugging
+//void print(vector<vector<int>> &v_map) {
+//    for (vector<int> pq : v_map) {
+//        for (int i = 0; i < pq.size(); i++) {
+//            cout << pq[i] << " -> ";
+//        }
+//        cout << endl;
+//    }
+//}
+
 // TODO(me): Implement
-void Viewer::ViewCollapses(GIC &g, vector<Operation *> c) {
+void Viewer::ViewCollapses(GIC &g, vector<Operation *> collapses) {
     vertices.clear();
     filepath = g.fp;
     for (int i = 0; i < g.pts.size(); i++) {
@@ -720,26 +740,36 @@ void Viewer::ViewCollapses(GIC &g, vector<Operation *> c) {
                             (float)rand()/(float)RAND_MAX,
                             (float)rand()/(float)RAND_MAX,
                             1.0);
-        v.next_position = glm::vec4((float)rand()/(float)RAND_MAX,
-                                    (float)rand()/(float)RAND_MAX,
-                                    (float)rand()/(float)RAND_MAX,
-                                    (float)rand()/(float)RAND_MAX);
-        
-        for (int i = 0; i < 10; i++) {
-            if (i == 0) {
-                v.positions[i] = glm::vec4(pt[0],
-                                           pt[1],
-                                           pt[2],
-                                           0.0);
-            } else {
-                v.positions[i] = glm::vec4(1.0 * (float)rand()/(float)RAND_MAX - 0.5 + pt[0],
-                                           1.0 * (float)rand()/(float)RAND_MAX - 0.5 + pt[1],
-                                           1.0 * (float)rand()/(float)RAND_MAX - 0.5 + pt[2],
-                                           1.0 * (float)rand()/(float)RAND_MAX);
-            }
-        }
         vertices.push_back(v);
     }
+    
+    int time_index = 0;
+    int collapse_index = 0;
+    vector<vector<int>> vertex_map;
+    while (time_index < Constants::MAX_NUM_COLLAPSES) {
+        while (collapses[collapse_index]->Type() != TIME_OP){
+            if (collapses[collapse_index]->Type() == COLLAPSE_OP) {
+                Collapse *c = (Collapse *) collapses[collapse_index];
+                collapse(c->v_start, c->v_target, vertex_map);
+            } else if (collapses[collapse_index]->Type() == INSERT_OP) {
+                vector<int> q;
+                Insert *i = (Insert *) collapses[collapse_index];
+                q.push_back(i->v_id);
+                vertex_map.push_back(q);
+            }
+            collapse_index++;
+        };
+        collapse_index++;
+        // loop over vertex map setting positions of vertices
+        for (int j = 0; j < vertex_map.size(); j++) {
+            vector<int> pq = vertex_map[j];
+            for (int i = 0; i < pq.size(); i++) {
+                vertices[pq[i]].positions[time_index] = vertices[pq[0]].position;
+            }
+        }
+        time_index++;
+    }
+
     pt_indices = g.indices[0];
     line_indices = g.indices[1];
     tri_indices = g.indices[2];

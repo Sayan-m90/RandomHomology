@@ -23,6 +23,7 @@ public:
     const static int GIC_MAX_DIM_SIZE;
     const static int MORTON_CODE_MULTIPLIER;
     const static int MOUSE_SPEED;
+    const static int MAX_NUM_COLLAPSES;
     const static string SEPARATOR_STR;
 };
 

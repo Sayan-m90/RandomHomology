@@ -12,5 +12,5 @@ void main() {
     gl_PointSize = 8.0;
     vec4 smooth_pos = t*next_position + (1.0-t)*position;
     gl_Position = projection * view * model * (smooth_pos);
-    dstColor = color;
+    dstColor = vec4(.8, 0.0, .2, 1.0);
 }

@@ -22,13 +22,5 @@ using std::cout;
 using std::endl;
 
 int main(int argc, const char * argv[]) {
-
-    GIC g("/Users/billvarcho/Desktop/Data/out_bunny_complex.txt");
-    std::vector<Operation*> collapses;
-    RandomHomology r(g);
-    r.run(.7, collapses);
-    for (const auto t: collapses) {
-        t->Print();
-    }
- 
+    
 }

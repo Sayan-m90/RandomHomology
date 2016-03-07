@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <vector>
 #include "glm/glm.hpp"
+#include "Constants.hpp"
 
 using std::vector;
 
@@ -21,7 +22,8 @@ struct Vertex{
     glm::vec4 color;
     glm::vec2 textureCoord;
     glm::vec4 next_position;
-    glm::vec4 positions[10];
+    // TODO: need better way of setting this
+    glm::vec4 positions[43];
     static int POS_INDEX;
     static int NEXT_POS_INDEX;
     //Helper functions to get memory offsets for GPU

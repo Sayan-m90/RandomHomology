@@ -8,6 +8,10 @@
 
 #include "Collapse.hpp"
 
+/*----------------------*
+ |  Insert Operation
+ *----------------------*/
+
 Insert::Insert() {
     v_id = -1;
 }
@@ -19,6 +23,15 @@ Insert::Insert(int id) {
 void Insert::Print() {
     cout << "insert " << v_id << endl;
 }
+
+OP_TYPE Insert::Type() {
+    return INSERT_OP;
+}
+
+
+/*----------------------*
+ |  Collapse Operation
+ *----------------------*/
 
 Collapse::Collapse() {
     v_start = -1;
@@ -34,6 +47,15 @@ void Collapse::Print() {
     cout << "collapse " << v_start << " to " << v_target << endl;
 }
 
+OP_TYPE Collapse::Type() {
+    return COLLAPSE_OP;
+}
+
+
+/*----------------------*
+ |  Timestamp Operation
+ *----------------------*/
+
 Timestamp::Timestamp() {
     v_time = -1;
 }
@@ -44,4 +66,8 @@ Timestamp::Timestamp(float time) {
 
 void Timestamp::Print() {
     cout << "# " << v_time << endl;
+}
+
+OP_TYPE Timestamp::Type() {
+    return TIME_OP;
 }
