@@ -46,6 +46,8 @@ struct Mouse{
     int x, y;
 };
 
+enum DRAW_LOOP { POINT_LOOP, GIC_LOOP, COLLAPSE_LOOP};
+
 class Viewer {
 private:
     bool draw_gic = false;
@@ -111,9 +113,10 @@ private:
     void do_movement();
     void draw_font(string text, void* font, GLint x, GLint y, glm::vec3 col);
     
-    void MainLoop();
+    void MainLoop(DRAW_LOOP type);
     void DisplayPoint(GLuint &vao);
     void DisplayGIC(GLuint &vao);
+    void DisplayCollapses(GLuint &vao);
     void DrawText();
     
 public:
@@ -122,7 +125,7 @@ public:
     void DrawPoints(vector<vector<double>> pts);
     void DrawMortonCode(MortonCode &c);
     void DrawGIC(GIC &g);
-    void ViewCollapses(vector<vector<double>> pts, vector<Collapse *> c);
+    void ViewCollapses(GIC &g, vector<Operation *> c);
 };
 
 

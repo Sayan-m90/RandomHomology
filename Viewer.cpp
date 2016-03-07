@@ -63,6 +63,115 @@ void Viewer::DisplayPoint(GLuint &vao) {
     glfwSwapBuffers(window);
 }
 
+void Viewer::DisplayCollapses(GLuint &vao) {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glUseProgram(shaderProgram);
+    
+    GLfloat currentFrame = glfwGetTime();
+    deltaTime = currentFrame - lastFrame;
+    lastFrame = currentFrame;
+    do_movement();
+    
+    time += deltaTime;
+    if (time > 1.0) {
+        time = time - 1.0;
+        Vertex::updateIndices();
+        cout << Vertex::POS_INDEX << endl;
+        cout << Vertex::NEXT_POS_INDEX << endl;
+    }
+    GLint timeLocation = glGetUniformLocation(shaderProgram, "t");
+    GLfloat mod_time = fmodf(currentFrame, 1.0f);
+    glUniform1f(timeLocation, mod_time);
+    
+    GLint vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+    glUniform4f(vertexColorLocation, 0.0f, 1.0f, 1.0f, 1.0f);
+    
+    glm::vec3 front;
+    front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+    front.y = sin(glm::radians(pitch));
+    front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+    cam_front = glm::normalize(front);
+    
+    GLint modelLoc = glGetUniformLocation(shaderProgram, "model");
+    GLint viewLoc = glGetUniformLocation(shaderProgram, "view");
+    GLint projectionLoc = glGetUniformLocation(shaderProgram, "projection");
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+    
+    glBindVertexArray(vao);
+    
+    // TODO (me): Dedup code
+    // Create a Vector Buffer Object that will store the vertices on video memory
+    GLuint vbo;
+    glGenBuffers(1, &vbo);
+    // Allocate space and upload the data from CPU to GPU
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex),
+                 &vertices.front(), GL_STATIC_DRAW);
+    // Get the location of the attributes that enters in the vertex shader
+    GLuint next_positionID;
+    position_ID = glGetAttribLocation(shaderProgram, "position");
+    next_positionID = glGetAttribLocation(shaderProgram, "next_position");
+    color_ID = glGetAttribLocation(shaderProgram,"color");
+    normal_ID = glGetAttribLocation(shaderProgram,"normal");
+    glEnableVertexAttribArray(next_positionID);
+    glEnableVertexAttribArray(position_ID);
+    glEnableVertexAttribArray(color_ID);
+    glEnableVertexAttribArray(normal_ID);
+    
+    glVertexAttribPointer( color_ID, 4, GL_FLOAT, GL_FALSE,
+                          sizeof(Vertex),(void *)Vertex::offsetColor());
+    glVertexAttribPointer( normal_ID, 3, GL_FLOAT, GL_FALSE,
+                          sizeof(Vertex),(void *)Vertex::offsetNormal());
+    
+    glVertexAttribPointer( position_ID, 3, GL_FLOAT, GL_FALSE,
+                          sizeof(Vertex), (void *)Vertex::offset_POS() );
+    glVertexAttribPointer( next_positionID, 3, GL_FLOAT, GL_FALSE,
+                          sizeof(Vertex), (void *)Vertex::offset_NEXT_POS());
+    
+    GLuint elementID_points, elementID_lines, elementID_tris;
+    
+    // Draw VERTS
+    glGenBuffers(1, &elementID_points);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementID_points);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, pt_indices.size()*sizeof(GLuint),
+                 &pt_indices.front(), GL_STATIC_DRAW);
+    glDrawElements(GL_POINTS, pt_indices.size(), GL_UNSIGNED_INT, 0);
+    
+    // Draw EDGES
+    glGenBuffers(1, &elementID_lines);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementID_lines);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, line_indices.size()*sizeof(GLuint),
+                 &line_indices.front(), GL_STATIC_DRAW);
+    glDrawElements(GL_LINES, line_indices.size(), GL_UNSIGNED_INT, 0);
+    
+    // Draw TRIS
+    glGenBuffers(1, &elementID_tris);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementID_tris);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, tri_indices.size()*sizeof(GLuint),
+                 &tri_indices.front(), GL_STATIC_DRAW);
+    
+    glDrawElements(GL_TRIANGLES, tri_indices.size(), GL_UNSIGNED_INT, 0);
+    
+    // DELETE THE BUFFERS TO
+    glDeleteBuffers(1, &elementID_points);
+    glDeleteBuffers(1, &elementID_lines);
+    glDeleteBuffers(1, &elementID_tris);
+    glDeleteBuffers(1, &vbo);
+    
+    // Honestly I don't think I need to do this since I'm deleteing the
+    // element_array buffers above
+    glBindVertexArray(0);
+    glBindBuffer( GL_ARRAY_BUFFER, 0);
+    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0);
+    
+    DrawText();
+    
+    // Swap front and back buffers
+    glfwSwapBuffers(window);
+}
+
 void Viewer::DisplayGIC(GLuint &vao) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(shaderProgram);
@@ -221,7 +330,7 @@ void Viewer::DrawText() {
     glUseProgram(shaderProgram);
 }
 
-void Viewer::MainLoop() {
+void Viewer::MainLoop(DRAW_LOOP type) {
     // Register a callback function for errors
     glfwSetErrorCallback(error_callback);
     // Initialize GLFW
@@ -252,10 +361,19 @@ void Viewer::MainLoop() {
 
     // Create a rendering loop
     while(!glfwWindowShouldClose(window)) {
-        if (draw_type % 2 == 0) {
-            DisplayPoint(vao);
-        } else {
-            DisplayGIC(vao);
+        switch (type) {
+            case POINT_LOOP:
+                DisplayPoint(vao);
+                break;
+            case GIC_LOOP:
+                DisplayGIC(vao);
+                break;
+            case COLLAPSE_LOOP:
+                DisplayCollapses(vao);
+                break;
+            default:
+                DisplayPoint(vao);
+                break;
         }
         
         // Poll for events
@@ -535,7 +653,7 @@ void Viewer::DrawPoints(vector<vector<double>> pts) {
         vertices.push_back(v);
     }
     
-    MainLoop();
+    MainLoop(POINT_LOOP);
 }
 
 void Viewer::DrawMortonCode(MortonCode &mc) {
@@ -559,7 +677,49 @@ void Viewer::DrawGIC(GIC &g) {
                                pt[1],
                                pt[2],
                                0.0);
-        v.color = glm::vec4(1., 0.0, 0.0, .3);
+        v.next_position = glm::vec4(pt[0],
+                                    pt[1],
+                                    pt[2],
+                                    0.0);
+        for (int i = 0; i < 10; i++) {
+            v.positions[i] = glm::vec4(pt[0],
+                                       pt[1],
+                                       pt[2],
+                                       0.0);
+        }
+        
+        v.color = glm::vec4((float)rand()/(float)RAND_MAX,
+                            (float)rand()/(float)RAND_MAX,
+                            (float)rand()/(float)RAND_MAX,
+                            1.0);
+        vertices.push_back(v);
+    }
+    
+    pt_indices = g.indices[0];
+    line_indices = g.indices[1];
+    tri_indices = g.indices[2];
+    num_points = (GLint) g.pts.size();
+    points_given = true;
+    draw_gic = true;
+    draw_type = 1;
+    MainLoop(GIC_LOOP);
+}
+
+// TODO(me): Implement
+void Viewer::ViewCollapses(GIC &g, vector<Operation *> c) {
+    vertices.clear();
+    filepath = g.fp;
+    for (int i = 0; i < g.pts.size(); i++) {
+        Vertex v;
+        vector<double> pt = g.pts[i];
+        v.position = glm::vec4(pt[0],
+                               pt[1],
+                               pt[2],
+                               0.0);
+        v.color = glm::vec4((float)rand()/(float)RAND_MAX,
+                            (float)rand()/(float)RAND_MAX,
+                            (float)rand()/(float)RAND_MAX,
+                            1.0);
         v.next_position = glm::vec4((float)rand()/(float)RAND_MAX,
                                     (float)rand()/(float)RAND_MAX,
                                     (float)rand()/(float)RAND_MAX,
@@ -578,10 +738,8 @@ void Viewer::DrawGIC(GIC &g) {
                                            1.0 * (float)rand()/(float)RAND_MAX);
             }
         }
-        
         vertices.push_back(v);
     }
-    
     pt_indices = g.indices[0];
     line_indices = g.indices[1];
     tri_indices = g.indices[2];
@@ -589,8 +747,5 @@ void Viewer::DrawGIC(GIC &g) {
     points_given = true;
     draw_gic = true;
     draw_type = 1;
-    MainLoop();
+    MainLoop(COLLAPSE_LOOP);
 }
-
-// TODO(me): Implement
-void Viewer::ViewCollapses(vector<vector<double>> pts, vector<Collapse *> c) {}
