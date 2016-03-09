@@ -15,6 +15,7 @@
 #include "Collapse.hpp"
 #include "Constants.hpp"
 
+#include "KNN_Graph.hpp"
 
 using std::vector;
 using std::priority_queue;
@@ -22,15 +23,17 @@ using std::cout;
 using std::endl;
 
 int main(int argc, const char * argv[]) {
-    // int dim = 3;
-    // vector<vector<double>> points;
-    // vector<double> mins;
-    // vector<double> maxes;
-    // double min, max;
-    // Utilities::CreateRandomPoints(points, mins, maxes, dim, 10000);
-    
-    GIC g("/Users/billvarcho/Desktop/Data/Torus/out_torus_complex.txt");
+//    // int dim = 3;
+//    // vector<vector<double>> points;
+//    // vector<double> mins;
+//    // vector<double> maxes;
+//    // double min, max;
+//    // Utilities::CreateRandomPoints(points, mins, maxes, dim, 10000);
+//    
+
+    //GIC g("/Users/billvarcho/Desktop/Data/Torus/out_torus_complex.txt");
     //GIC g("/Users/billvarcho/Desktop/Data/BunnyDense/out_bunny_complex.txt");
+    GIC g("/Users/billvarcho/Desktop/Data/BunnyDense/tmp_complex.txt");
     vector<Operation*> collapses;
     RandomHomology r(g);
     r.run(.7, collapses);
@@ -47,4 +50,7 @@ int main(int argc, const char * argv[]) {
     v.DrawMortonCode(*mc);
     v1.DrawGIC(g);
     v2.ViewCollapses(g, collapses);
+
+//    KNN_Graph *g = new KNN_Graph("/Users/billvarcho/Desktop/Data/BunnyDense/points_copy.txt", 8);
+//    g->writeToFile();
 }

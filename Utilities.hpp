@@ -34,11 +34,7 @@ class Utilities {
 public:
     
     static ANNkd_tree *ConstructKDTree(vector<vector<double>>, int dim);
-    static void ReadInGICPoints(vector<vector<double>> &pts,
-                                double &mins,double &maxes,
-                                int &dim, string gic_fp);
-    
-    static void ReadInPoints(vector<vector<double>> &pts, int dim, string fp);
+    static void ReadInPoints(vector<vector<double>> &pts, string fp);
     // Used mainly for testing
     static void CreateRandomPoints(vector<vector<double>> &pts,
                                    vector<double> &mins,

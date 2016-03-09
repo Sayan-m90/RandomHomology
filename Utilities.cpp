@@ -34,35 +34,10 @@ void Utilities::CreateRandomPoints(vector<vector<double>> &pts,
     }
 }
 
-// TODO(me): Generalize for higher dimensions
-// Deduped code (can probably delete later)
-void Utilities::ReadInGICPoints(vector<vector<double>> &pts,
-                                double &min_n, double &max_n,
-                                int &dim, string fp) {
+void Utilities::ReadInPoints(vector<vector<double>> &pts, string fp) {
     ifstream input(fp);
-    bool done = false;
-    int num_points;
-    min_n = std::numeric_limits<double>::max();
-    max_n = std::numeric_limits<double>::min();
-    
     if (input.is_open()) {
-        // get the first line (dim, num pts)
-        string s_dim, s_num, tmp;
-        stringstream ss(stringstream::in | stringstream::out);
-        getline(input, s_dim, ' ');
-        getline(input, s_num);
-        ss << s_dim << s_num;
-        
-        dim = stoi(s_dim);
-        if (dim != 3) {
-            throw std::runtime_error("Can only read in 3D point data for now.");
-        }
-        num_points = stoi(s_num);
-        
-        // TODO(me): read in points separated by spaces and tabs
-        int point_count = 0;
-        while (point_count < num_points) {
-            done = input.eof();
+        while (!input.eof()) {
             std::string sx, sy, sz;
             double x, y, z;
             std::stringstream ss(std::stringstream::in |
@@ -70,23 +45,16 @@ void Utilities::ReadInGICPoints(vector<vector<double>> &pts,
             string s;
             getline(input, s);
             vector<string> strs;
-            boost::split(strs, s, boost::is_any_of("\t "));
+            boost::split(strs, s, boost::is_any_of(Constants::SEPARATOR_STR));
             vector<double> pt;
             for (size_t i = 0; i < strs.size(); i++) {
                 if (strs[i].size() > 0) {
                     double coord = stod(strs[i]);
                     pt.push_back(coord);
-                    min_n = min(min_n, coord);
-                    max_n = max(max_n, coord);
                 }
             }
-            
-            min_n = min(min_n, min(x, min(y, z)));
-            max_n = max(max_n, max(x, max(y, z)));
-            
             // add point to the vector
             pts.push_back(pt);
-            point_count += 1;
         }
     }
 }
