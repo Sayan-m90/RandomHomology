@@ -9,6 +9,6 @@ uniform mat4 projection;
 
 void main() {
 	gl_PointSize = 15.0;
-	gl_Position = projection * view * model * position;
+	gl_Position = projection * view * model * (position.xyzw);
     dstColor = color;
 }

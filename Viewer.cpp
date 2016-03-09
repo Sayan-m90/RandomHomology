@@ -723,9 +723,9 @@ void Viewer::DrawGIC(GIC &g) {
 }
 
 
-/*-----------------------------------------*
- | Helper function(s) for Viewing Collapses
- *-----------------------------------------*/
+/*---------------------------------------------*
+ | Helper function(s) for Displaying Collapses
+ *---------------------------------------------*/
 void collapse(int start, int end, vector<vector<int>> &v_map) {
     vector<int> s = v_map[start];
     vector<int> empty;
@@ -733,17 +733,6 @@ void collapse(int start, int end, vector<vector<int>> &v_map) {
     v_map[end].insert(v_map[end].end(), s.begin(), s.end());
 }
 
-// Used for debugging
-//void print(vector<vector<int>> &v_map) {
-//    for (vector<int> pq : v_map) {
-//        for (int i = 0; i < pq.size(); i++) {
-//            cout << pq[i] << " -> ";
-//        }
-//        cout << endl;
-//    }
-//}
-
-// TODO(me): Implement
 void Viewer::ViewCollapses(GIC &g, vector<Operation *> collapses) {
     vertices.clear();
     filepath = g.fp;
