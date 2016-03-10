@@ -709,7 +709,7 @@ void Viewer::DrawGIC(GIC &g) {
         }
         
         v.color = glm::vec4(.35, .56, 1.0, 1.0);
-        v.outline_color = glm::vec4(.62, .0, .1, 1.0);
+        v.outline_color = .6f * v.color;
         vertices.push_back(v);
     }    
     pt_indices = g.indices[0];
@@ -744,7 +744,7 @@ void Viewer::ViewCollapses(GIC &g, vector<Operation *> collapses) {
                                pt[2],
                                0.0);
         v.color = glm::vec4(.91, .0, .15, 1.0);
-        v.outline_color = glm::vec4(.62, .0, .1, 1.0);
+        v.outline_color = .6f * v.color;
         vertices.push_back(v);
     }
     

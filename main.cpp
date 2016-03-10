@@ -34,6 +34,7 @@ int main(int argc, const char * argv[]) {
     //GIC g("/Users/billvarcho/Desktop/Data/Torus/out_torus_complex.txt");
     //GIC g("/Users/billvarcho/Desktop/Data/BunnyDense/out_bunny_complex.txt");
     GIC g("/Users/billvarcho/Desktop/Data/BunnyDense/tmp_complex.txt");
+    //GIC g("/Users/billvarcho/Desktop/DELETE_SAYAN/gICe10d20-4_complex.txt");
     vector<Operation*> collapses;
     RandomHomology r(g);
     r.run(.7, collapses);
@@ -47,10 +48,10 @@ int main(int argc, const char * argv[]) {
     Viewer v2;
     //    //v1.DrawPoints(g.pts);
     //    //v1.DrawMortonCode(*mc);
-    v.DrawMortonCode(*mc);
+    //v.DrawMortonCode(*mc);
     v1.DrawGIC(g);
     v2.ViewCollapses(g, collapses);
 
-//    KNN_Graph *g = new KNN_Graph("/Users/billvarcho/Desktop/Data/BunnyDense/points_copy.txt", 8);
+//    KNN_Graph *g = new KNN_Graph("/Users/billvarcho/Desktop/Data/BunnyDense/points_copy.txt", 10);
 //    g->writeToFile();
 }
