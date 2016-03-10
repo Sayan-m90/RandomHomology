@@ -311,7 +311,7 @@ void WriteOFFformatComplex(const char* pFileName, const PointSet &pts, std::map<
 	//
 }
 /***********************************************/
-char * strLicense = "THIS SOFTWARE IS PROVIDED \"AS-IS\". THERE IS NO WARRANTY OF ANY KIND. "
+char * strLicenseGIC = "THIS SOFTWARE IS PROVIDED \"AS-IS\". THERE IS NO WARRANTY OF ANY KIND. "
 "NEITHER THE AUTHORS NOR THE OHIO STATE UNIVERSITY WILL BE LIABLE FOR "
 "ANY DAMAGES OF ANY KIND, EVEN IF ADVISED OF SUCH POSSIBILITY. \n"
 "\n"
@@ -406,7 +406,7 @@ bool ParseCommand(int argc, char** argv,
 			//
 			if (vm.count("-l"))
 			{
-				std::cout << strLicense << std::endl;
+				std::cout << strLicenseGIC << std::endl;
 			}
 			//
 			boost::program_options::notify(vm);

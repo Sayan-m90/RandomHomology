@@ -73,7 +73,7 @@ void Viewer::DisplayCollapses(GLuint &vao) {
     lastFrame = currentFrame;
     do_movement();
     
-    time += 20.0 * deltaTime;
+    time += 5.0 * deltaTime;
     if (time > 1.0) {
         time = time - 1.0;
         Vertex::updateIndices();

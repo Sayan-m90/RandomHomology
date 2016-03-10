@@ -4,8 +4,8 @@
 #ifndef _FLAG_COMPLEX_H_
 #define _FLAG_COMPLEX_H_
 #include "SimpleGraph.h"
-#include "SimplexNode.h"
-#include "SimplicialComplex.h"
+#include "SimplexNodeGIC.h"
+#include "SimplicialComplexGIC.h"
 
 #include <vector>
 #include <set>

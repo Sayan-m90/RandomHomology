@@ -4,7 +4,7 @@
 #ifndef _SIMPLICIAL_TREE_H_
 #define _SIMPLICIAL_TREE_H_
 
-#include "SimplexNode.h"
+#include "SimplexNodeGIC.h"
 //#include "filtration.h"
 
 #include <vector>

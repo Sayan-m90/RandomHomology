@@ -24,7 +24,7 @@ using std::vector;
 
 /*---------------------------------------------------
  | Temp class for creating a graph on N-D points
- | based on approximate K-Nearest Neighbors. (Proof)
+ | based on approximate K-Nearest Neighbors. Proof
  | of concept for using this graph as input to GIC
  | as initial graph instead of epsilon-delta graph.
  *---------------------------------------------------*/
