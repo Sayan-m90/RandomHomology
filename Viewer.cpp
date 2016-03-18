@@ -759,7 +759,7 @@ void Viewer::ViewCollapses(GIC &g, vector<Operation *> collapses) {
             } else if (collapses[collapse_index]->Type() == INSERT_OP) {
                 vector<int> q;
                 Insert *i = (Insert *) collapses[collapse_index];
-                q.push_back(i->v_id);
+                q.push_back(i->v_id[0]);
                 vertex_map.push_back(q);
             }
             collapse_index++;
@@ -783,4 +783,10 @@ void Viewer::ViewCollapses(GIC &g, vector<Operation *> collapses) {
     draw_gic = true;
     draw_type = 1;
     MainLoop(COLLAPSE_LOOP);
+}
+
+
+// TODO (me): implement
+void ViewBarcode(vector<Barcode> &bc) {
+
 }

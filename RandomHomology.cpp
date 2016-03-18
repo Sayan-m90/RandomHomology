@@ -20,6 +20,7 @@ RandomHomology::RandomHomology(vector<vector<double>> &points,
 RandomHomology::RandomHomology(GIC &g) {
     dim = g.dim;
     initial_points = g.pts;
+    indices = g.indices;
     mc = new MortonCode(g);
     kd_tree = Utilities::ConstructKDTree(initial_points, dim);
 }
@@ -77,11 +78,19 @@ void RandomHomology::collapseToClosest(MortonPoint p,
 
 void RandomHomology::run(double alpha, vector<Operation*> &collapses) {
     int count = 0;
-    // add insert operations
-    for (int i = 0; i < initial_points.size(); i++) {
-        Insert *p = new Insert(i);
-        collapses.push_back(p);
+    
+    // initial inserts
+    for (int i = 0; i < indices.size(); i++) {
+        for (int j = 0; j < indices[i].size() /(i+1); j++) {
+            vector<int> simp;
+            for (int k = 0; k < i+1; k++) {
+                simp.push_back(indices[i][j*(i+1) + k]);
+            }
+            Insert *s = new Insert(simp);
+            collapses.push_back(s);
+        }
     }
+    
     // add first timestamp (to separate initial inserts)
     Timestamp *t = new Timestamp(0);
     collapses.push_back(t);

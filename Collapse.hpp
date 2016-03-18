@@ -11,9 +11,11 @@
 
 #include <stdio.h>
 #include <iostream>
+#include <vector>
 
 using std::cout;
 using std::endl;
+using std::vector;
 
 enum OP_TYPE {INSERT_OP, COLLAPSE_OP, TIME_OP, NULL_OP};
 
@@ -23,11 +25,14 @@ public:
     virtual OP_TYPE Type() = 0;
 };
 
+// TODO(me): Update this class to include insertion of
+// arbitrary dimension simplices
 class Insert : public Operation {
 public:
-    int v_id;
+    vector<int> v_id;
     Insert();
     Insert(int v_id);
+    Insert(vector<int> ids);
     ~Insert() {}
     virtual void Print();
     virtual OP_TYPE Type();

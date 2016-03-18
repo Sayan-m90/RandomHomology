@@ -28,6 +28,7 @@ public:
     MortonCode *mc;
     ANNkd_tree *kd_tree;
     set<int>removed_ids;
+    vector<vector<int>> indices;
     vector<vector<double>> initial_points;
     RandomHomology(vector<vector<double>> &points,
                    vector<double> &min_bounds,

@@ -13,15 +13,24 @@
  *----------------------*/
 
 Insert::Insert() {
-    v_id = -1;
 }
 
 Insert::Insert(int id) {
-    v_id = id;
+    v_id.push_back(id);
+}
+
+Insert::Insert(vector<int> ids) {
+    for (int id : ids) {
+        v_id.push_back(id);
+    }
 }
 
 void Insert::Print() {
-    cout << "insert " << v_id << endl;
+    cout << "insert ";
+    for (int i = 0; i < v_id.size() - 1; i++) {
+        cout << v_id[i] << " ";
+    }
+    cout << v_id[v_id.size() - 1] << endl;
 }
 
 OP_TYPE Insert::Type() {

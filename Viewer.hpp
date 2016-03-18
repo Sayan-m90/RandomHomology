@@ -31,11 +31,12 @@
 #include "glm/gtx/quaternion.hpp"
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Barcode.hpp"
+#include "Collapse.hpp"
+#include "Constants.hpp"
 #include "GIC.hpp"
 #include "MortonCode.hpp"
 #include "Vertex.hpp"
-#include "Collapse.hpp"
-#include "Constants.hpp"
 
 using std::vector;
 
@@ -126,6 +127,7 @@ public:
     void DrawMortonCode(MortonCode &c);
     void DrawGIC(GIC &g);
     void ViewCollapses(GIC &g, vector<Operation *> c);
+    void ViewBarcode(vector<Barcode> &bc);
 };
 
 

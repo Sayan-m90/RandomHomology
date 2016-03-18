@@ -31,10 +31,10 @@ int main(int argc, const char * argv[]) {
 //    // Utilities::CreateRandomPoints(points, mins, maxes, dim, 10000);
 //    
 
-    //GIC g("/Users/billvarcho/Desktop/Data/Torus/out_torus_complex.txt");
+    //GIC g("/Users/billvarcho/Desktop/Data/Torus/simple_complex.txt");
     //GIC g("/Users/billvarcho/Desktop/Data/BunnyDense/out_bunny_complex.txt");
     //GIC g("/Users/billvarcho/Desktop/Data/out_bunny_complex.txt");
-    GIC g("/Users/billvarcho/Desktop/Data/BunnyDense/tmp_complex.txt");
+    //GIC g("/Users/billvarcho/Desktop/Data/BunnyDense/tmp_complex.txt");
     //GIC g("/Users/billvarcho/Desktop/DELETE_SAYAN/gICe10d20-4_complex.txt");
 
     vector<Operation*> collapses;
