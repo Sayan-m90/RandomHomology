@@ -1,8 +1,16 @@
 /*
-(c) 2013 Fengtao Fan
+(c) 2015 Fengtao Fan, Dayu Shi
 */
 #ifndef _SIMPLICIAL_TREE_NODE_H_
 #define _SIMPLICIAL_TREE_NODE_H_
+
+////redefine new
+//#ifdef _DEBUG
+//#ifndef DBG_NEW
+//#define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
+//#define new DBG_NEW
+//#endif
+//#endif  // _DEBUG
 
 /* boost shared pointer */ 
 
@@ -22,10 +30,10 @@
 #include <boost/functional/hash.hpp>
 
 using namespace std;
-//#include "AnnotationMatrix.h"
-//#include "UnionFindDeletion.h"
 
-
+extern std::vector<std::unordered_map<int, pair<int, int>>> persistences;
+extern int iThreshold;
+extern int filtration_step;
 
 /*-----Simplicial Tree---------*/
 /* declaration of simpicial tree node*/
@@ -37,6 +45,7 @@ typedef boost::shared_ptr<SimplicialTreeNode> SimplicialTreeNode_ptr;
 class ListNode; 
 // boost shared pointer to the list node 
 typedef boost::shared_ptr<ListNode> ListNodePtr;
+//typedef boost::weak_ptr<ListNode> ListNodeWeakPtr;
 /*------------------------------------------------*/
 
 /*--------union find deletion classes--------*/ 
@@ -48,10 +57,6 @@ typedef boost::shared_ptr<TreeNode> TreeNodePtr;
 typedef boost::shared_ptr<TreeRootNode> TreeRootNodePtr;
 /*------------------------------------------------*/
 
-///* sibling structure for each node */
-//typedef std::map<int, SimplicialTreeNode_ptr> Map_int_stnPtr;
-///* shared pointer to <int, stn_ptr> mapping*/
-//typedef boost::shared_ptr<Map_int_stnPtr> Map_int_stnPtr_ptr;
 
 class SimplicialTreeNode
 {
@@ -123,8 +128,6 @@ public:
 	}
 	// 
 	//public:
-	//std::unordered_map<int, TreeRootNodePtr> forest;
-	//std::unordered_map<int, ElementNodePtr> elemSet; 
 private:
 	TreeRootNodePtr find_root(TreeNodePtr a){
 		while (a->parent != a) {
@@ -167,7 +170,7 @@ public:
 	{// dummy head with row index -1
 	} 
 	ListNode (const ListNode &rhs);
-	ListNode& operator=(const ListNode &rhs) ;
+	ListNode& operator=(const ListNode &rhs);
 	ListNode (const int r, const int v) : row(r), val(v)
 	{}
 	//
@@ -235,11 +238,15 @@ class AnnotationMatrix
 	/*ListNodePtr == nullptr indicates the zero annotation*/
 	/* each column is a list with a dummy head node */
 public:
-	AnnotationMatrix() 
+	AnnotationMatrix() : timeStamp(0)
 	{}
 	// only copy empty annotation matrix
 	AnnotationMatrix(const AnnotationMatrix & rhs)
 	{}
+	~AnnotationMatrix()
+	{
+		
+	}
 	ListNodePtr DeepCopyAnnotationColumn(const ListNodePtr &head);
 	// 
 	bool search(ListNodePtr &ptr) {  
@@ -262,10 +269,12 @@ public:
 	}
 	void Insert(ListNodePtr &ptr, const TreeRootNodePtr x, UnionFindDeletion &ufd);
 	TreeRootNodePtr Delete(ListNodePtr &ptr);
+	void clearNode(ListNodePtr &ptr, bool bUpdatePers = true);
 	ListNodePtr extract_column(ListNodePtr & head) {
 		if (head) {
 			ListNodePtr col_head = DeepCopyAnnotationColumn(head);
-			Delete(head);
+			//Delete(head);
+			clearNode(head, false);
 			return col_head;
 		}
 		return ListNodePtr();
@@ -280,7 +289,7 @@ public:
 		return (int)row_ptr.size();
 	}
 	ListNodePtr create_cocycle(TreeRootNodePtr &root, UnionFindDeletion &ufd, bool zero_elem = false);
-	int sum_two_annotation_with_changed_dst(ListNodePtr &out_dst, ListNodePtr &in_src) ;
+	int sum_two_annotation_with_changed_dst(ListNodePtr & out_dst, ListNodePtr & in_src);
 	int lowest_one(ListNodePtr & head);
 	void kill_cocycle_last_nonzero_bit(const int u, ListNodePtr &ext_src, UnionFindDeletion &ufd);
 	bool empty() {
@@ -288,13 +297,24 @@ public:
 	}
 public:
 	std::unordered_map<ListNodePtr, TreeRootNodePtr, hash_ListNodePtr, equal_ListNodePtr> ann_mat;
-	std::unordered_map<int, ListNodePtr> row_ptr; 
+	std::unordered_map<int, ListNodePtr> row_ptr;
+	long long timeStamp;		//always stores the next coming time stamp
+	int annoDim;  //dimension of the simplices this annotation matrix is for
 private:
-	void delete_from_doubly_linked_list(const int row, ListNodePtr & p) {
+	void delete_from_doubly_linked_list(const int row, ListNodePtr & p, bool bUpdatePers = true) {
 		if (p->left == p) {
 			// it is the last element
 			row_ptr[row].reset();
 			row_ptr.erase(row); 
+			if (bUpdatePers)
+			{
+				//update persistences in dim annoDim
+				unordered_map<int, pair<int, int>>::iterator iterPers = persistences[annoDim].find(row);
+				(iterPers->second).second = filtration_step;
+				int diff = filtration_step - (iterPers->second).first;
+				if (diff <= iThreshold && diff >= 0)
+					persistences[annoDim].erase(iterPers);
+			}
 		}
 		else {
 			// not last element

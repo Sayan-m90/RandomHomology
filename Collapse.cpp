@@ -26,15 +26,28 @@ Insert::Insert(vector<int> ids) {
 }
 
 void Insert::Print() {
-    cout << "insert ";
-    for (int i = 0; i < v_id.size() - 1; i++) {
-        cout << v_id[i] << " ";
+//    cout << "insert ";
+//    for (int i = 0; i < v_id.size() - 1; i++) {
+//        cout << v_id[i] << " ";
+//    }
+//    cout << v_id[v_id.size() - 1] << endl;
+    cout << PrintString();
+}
+
+string Insert::PrintString() {
+    string s = "insert ";
+    for (int i = v_id.size() - 1; i > 0; i--) {
+        s = s + to_string(v_id[i]) + " ";
     }
-    cout << v_id[v_id.size() - 1] << endl;
+    return s + to_string(v_id[0]) + "\n";
 }
 
 OP_TYPE Insert::Type() {
     return INSERT_OP;
+}
+
+bool Insert::IsVertexInsert() {
+    return v_id.size() == 1;
 }
 
 
@@ -53,8 +66,13 @@ Collapse::Collapse(int start, int target) {
 }
 
 void Collapse::Print() {
-    cout << "collapse " << v_start << " to " << v_target << endl;
+    cout << PrintString();
 }
+
+string Collapse::PrintString() {
+    return "collapse " + to_string(v_start) + " to " + to_string(v_target) + "\n";
+}
+
 
 OP_TYPE Collapse::Type() {
     return COLLAPSE_OP;
@@ -74,8 +92,13 @@ Timestamp::Timestamp(float time) {
 }
 
 void Timestamp::Print() {
-    cout << "# " << v_time << endl;
+    cout << PrintString();
 }
+
+string Timestamp::PrintString() {
+    return "# " + to_string(v_time) + "\n";
+}
+
 
 OP_TYPE Timestamp::Type() {
     return TIME_OP;

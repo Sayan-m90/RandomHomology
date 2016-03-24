@@ -24,6 +24,7 @@
 using std::string;
 using std::vector;
 using std::ifstream;
+using std::ofstream;
 using std::stringstream;
 using std::cout;
 using std::endl;
@@ -40,7 +41,7 @@ public:
                                    vector<double> &mins,
                                    vector<double> &maxes,
                                    int dim, int n);
-    static void WriteCollapsesToFile(string fp);
+    static void WriteCollapsesToFile(string fp, vector<Operation*> &collapses);
 };
 
 #endif /* Utilities_hpp */

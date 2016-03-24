@@ -65,8 +65,6 @@ void RandomHomology::collapseToClosest(MortonPoint p,
                 //  This details the collapses
                 Collapse *c = new Collapse(p.p_id, nn_ids[current_index]);
                 collapses.push_back(c);
-//                cout << "collapse " << p.p_id << " to " <<
-//                    nn_ids[current_index] << endl;
                 j = check_cout;
                 neighbor_found = true;
             }
@@ -78,7 +76,6 @@ void RandomHomology::collapseToClosest(MortonPoint p,
 
 void RandomHomology::run(double alpha, vector<Operation*> &collapses) {
     int count = 0;
-    
     // initial inserts
     for (int i = 0; i < indices.size(); i++) {
         for (int j = 0; j < indices[i].size() /(i+1); j++) {

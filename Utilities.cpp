@@ -79,3 +79,26 @@ ANNkd_tree* Utilities::ConstructKDTree(vector<vector<double>> pts, int dim) {
                           max_points,
                           dim);
 }
+
+void Utilities::WriteCollapsesToFile(string fp, vector<Operation*> &collapses) {
+    cout << "Writing Collapses to File: " + fp << endl;
+    ofstream out_file;
+    int num_simplices = 0;
+    out_file.open (fp + "_collapses");
+    for (const auto t: collapses) {
+        out_file << t->PrintString();
+        if (t->IsVertexInsert()) {
+            num_simplices += 1;
+        }
+    }
+    out_file.close();
+    
+    cout << "Writing iDC File: " + fp << endl;
+    ofstream out_file_iDC;
+    out_file_iDC.open (fp + "_iDC");
+    out_file_iDC << num_simplices << "\n";
+    for (int i = 0; i < num_simplices; i++) {
+        out_file_iDC << i << "\n";
+    }
+    out_file_iDC.close();
+}

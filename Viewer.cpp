@@ -759,8 +759,10 @@ void Viewer::ViewCollapses(GIC &g, vector<Operation *> collapses) {
             } else if (collapses[collapse_index]->Type() == INSERT_OP) {
                 vector<int> q;
                 Insert *i = (Insert *) collapses[collapse_index];
-                q.push_back(i->v_id[0]);
-                vertex_map.push_back(q);
+                if (i->v_id.size() == 1) {
+                    q.push_back(i->v_id[0]);
+                    vertex_map.push_back(q);
+                }
             }
             collapse_index++;
         };

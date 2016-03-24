@@ -16,13 +16,17 @@
 using std::cout;
 using std::endl;
 using std::vector;
+using std::string;
+using std::to_string;
 
 enum OP_TYPE {INSERT_OP, COLLAPSE_OP, TIME_OP, NULL_OP};
 
 class Operation {
 public:
     virtual void Print() = 0;
+    virtual string PrintString() = 0;
     virtual OP_TYPE Type() = 0;
+    virtual bool IsVertexInsert() {return false;}
 };
 
 // TODO(me): Update this class to include insertion of
@@ -35,6 +39,8 @@ public:
     Insert(vector<int> ids);
     ~Insert() {}
     virtual void Print();
+    virtual bool IsVertexInsert();
+    virtual string PrintString();
     virtual OP_TYPE Type();
 };
 
@@ -45,6 +51,7 @@ public:
     Collapse(int start, int end);
     ~Collapse() {}
     virtual void Print();
+    virtual string PrintString();
     virtual OP_TYPE Type();
 };
 
@@ -55,6 +62,7 @@ public:
     Timestamp(float time);
     ~Timestamp() {}
     virtual void Print();
+    virtual string PrintString();
     virtual OP_TYPE Type();
 };
 

@@ -1,5 +1,5 @@
 /*
-(c) 2013 Fengtao Fan
+(c) 2015 Fengtao Fan, Dayu Shi
 */
 #include "SimplexNodeSP.h"
 
@@ -81,17 +81,11 @@ ListNodePtr AnnotationMatrix::create_cocycle(TreeRootNodePtr &root, UnionFindDel
 		return p;
 	} 
 	// not the zero element
-	int bit = 0;
-	if (!row_ptr.empty()) {
-		for (std::unordered_map<int, ListNodePtr>::iterator uIter = row_ptr.begin();
-			uIter != row_ptr.end(); ++uIter) {
-			bit = std::max(bit, uIter->first);
-		}
-		++bit;
-	}
+
 	// generate the dummy node first
 	ListNodePtr p(boost::make_shared<ListNode>());
-	p->next = boost::make_shared<ListNode>(bit, 1);
+	p->next = boost::make_shared<ListNode>(timeStamp, 1);
+	timeStamp += 1;
 	p->next->next = p; // make it circular
 	// link root to p
 	Insert(p, root, ufd);
@@ -111,6 +105,8 @@ void AnnotationMatrix::Insert(ListNodePtr &ptr, const TreeRootNodePtr root, Unio
 		ListNodePtr p(ptr->next); 
 		while (p != ptr)
 		{
+			/*if (p->row == 381)
+				p = p;*/
 			insert_into_doubly_linked_list(p->row, p);
 			//
 			p = p->next;
@@ -125,11 +121,39 @@ void AnnotationMatrix::Insert(ListNodePtr &ptr, const TreeRootNodePtr root, Unio
 		// update cluster associated with the annotation 
 		newRoot->attribute = ann_mat.find(ptr)->first;
 		ann_mat[ptr] = newRoot;
-		//
-		//std::cout << root->elem->label << " exists" << std::endl;
+		//clear listNode "ptr"
+		ptr->next.reset();
 	}
 	return;
 }
+
+void AnnotationMatrix::clearNode(ListNodePtr &ptr, bool bUpdatePers)
+{//
+
+	std::unordered_map<ListNodePtr, TreeRootNodePtr, hash_ListNodePtr, equal_ListNodePtr>::iterator findIter = ann_mat.find(ptr);
+	if (findIter != ann_mat.end())
+	{
+		// delete from the row list
+		// move to the first element
+		ListNodePtr p(findIter->first->next);
+		while (p != findIter->first)
+		{
+			delete_from_doubly_linked_list(p->row, p, bUpdatePers);
+			p = p->next;
+		}
+		// delete from the list
+		TreeRootNodePtr ret = findIter->second;
+		ret->attribute.reset(); // unlink the root with annotation
+		//
+		ann_mat.erase(findIter);
+		//break cycle
+		p->next.reset();
+		return;
+	}
+	//
+	return;
+}
+
 TreeRootNodePtr AnnotationMatrix::Delete(ListNodePtr &ptr)
 {//
 
@@ -141,7 +165,8 @@ TreeRootNodePtr AnnotationMatrix::Delete(ListNodePtr &ptr)
 		ListNodePtr p(findIter->first->next);
 		while (p != findIter->first)
 		{
-			delete_from_doubly_linked_list(p->row, p); 
+			//don't update persistences
+			delete_from_doubly_linked_list(p->row, p, false); 
 			//
 			p = p->next;
 		}
@@ -155,7 +180,7 @@ TreeRootNodePtr AnnotationMatrix::Delete(ListNodePtr &ptr)
 	//
 	return boost::make_shared<TreeRootNode>();
 }  
-int AnnotationMatrix::sum_two_annotation_with_changed_dst(ListNodePtr &out_dst, ListNodePtr &in_src) {
+int AnnotationMatrix::sum_two_annotation_with_changed_dst(ListNodePtr & out_dst, ListNodePtr & in_src) {
 	// change dst and keep src unchanged 
 	if (!in_src) {
 		// in_src is empty
@@ -203,11 +228,6 @@ int AnnotationMatrix::sum_two_annotation_with_changed_dst(ListNodePtr &out_dst, 
 	while (dst_prev->next != out_dst) {
 		dst_prev = dst_prev->next;
 	} 
-	// check if it is zero 
-	//if (out_dst->next == out_dst) {
-	//	//it is zero
-	//	out_dst.reset();
-	//}
 	return (out_dst->next != out_dst ? dst_prev->row : -1);
 } 
 int AnnotationMatrix::lowest_one(ListNodePtr & head) {
@@ -227,7 +247,7 @@ void AnnotationMatrix::kill_cocycle_last_nonzero_bit(const int u, ListNodePtr &e
 	// add every annotation with nonzero u-th bit by exteranl annotation ext_src
 	while (row_ptr.find(u) != row_ptr.end()) {
 		ListNodePtr mid_node = row_ptr[u];
-		// the dummy head has row of 0
+		// the dummy head has row of -1
 		while (mid_node->row != -1) {
 			mid_node = mid_node->next;
 		}
@@ -241,65 +261,3 @@ void AnnotationMatrix::kill_cocycle_last_nonzero_bit(const int u, ListNodePtr &e
 	}
 	return;
 }
-//using namespace std;
-//ListNodePtr build_from_vector(const vector<int> &A) {
-//	// create dummy head
-//	ListNodePtr head = boost::make_shared<ListNode>();
-//	if (A.empty()) {
-//		head->next = head;
-//		return head;
-//	}
-//	ListNodePtr tail = head;
-//	for (int i = 0 ; i < A.size(); ++i) {
-//		tail->next = boost::make_shared<ListNode>(A[i], 1);
-//		tail = tail->next;
-//	}
-//	tail->next = head;
-//	return head;
-//}
-//ListNodePtr build_from_array(int A[], const int n) {
-//	vector<int> vec(A, A + n);
-//
-//	return build_from_vector(vec);
-//}
-//void test() {
-//	int a1[] = {1, 2, 3, 5, 7};
-//	int a11[] = {1, 2, 3, 5, 6, 7, 10, 12, 13};
-//	int b1[] = {1, 3, 8, 9};
-//	int c1[] = {0, 10, 11};
-//	ListNodePtr z(boost::make_shared<ListNode>());
-//	z->next = z;
-//	ListNodePtr A1 = build_from_array(a1, sizeof(a1) / sizeof(int));
-//	ListNodePtr A11 = build_from_array(a11, sizeof(a11) / sizeof(int));
-//	ListNodePtr B1 = build_from_array(b1, sizeof(b1) / sizeof(int));
-//	ListNodePtr C1 = build_from_array(c1, sizeof(c1) / sizeof(int));
-//
-//	
-//
-//	AnnotationMatrix annMat;
-//	cout << annMat.lowest_one(z) << endl;
-//	cout << annMat.lowest_one(A1) << endl;
-//	cout << annMat.lowest_one(A11) << endl;
-//	cout << annMat.lowest_one(B1) << endl;
-//	cout << annMat.lowest_one(C1) << endl;
-//
-//	annMat.Insert(A1, 1);
-//	annMat.Insert(A11, 1);
-//	//annMat.Delete(A11);
-//	annMat.Insert(B1, 2);
-//	ListNodePtr D1 = annMat.DeepCopyAnnotationColumn(B1);
-//	annMat.kill_uth_bit(3, D1);
-//	//cout << annMat.sum_two_annotation_with_changed_dst(D1, A11) << endl;
-//	//cout << annMat.lowest_one(D1) << endl;
-//	//cout << annMat.sum_dst_with_one_column(D1, A1) << endl;
-//	//cout << annMat.lowest_one(D1) << endl;
-//	
-//
-//	return;
-//
-//}
-//
-//int main(int argc, char** argv) {
-//	test();
-//	return 1;
-//}

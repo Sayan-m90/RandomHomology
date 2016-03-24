@@ -1,26 +1,44 @@
 /*
-(c) 2013 Fengtao Fan
+(c) 2015 Fengtao Fan, Dayu Shi
 */
+
 #include "SimplicialComplexSP.h" 
 
+#include <ctime>
 #include <iostream>
 #include <vector>
 #include <cmath>
 #include <sstream>
 #include <unordered_set>
-
+#include <fstream>
+//#include <tr1/unordered_map>
 #include <boost/program_options.hpp>
 
-void ComputingPersistenceForSimplicialMap(const char* file_name_of_domain_complex, 
-										  bool is_domain_complex_with_annotation,
-										  const char* file_name_of_range_complex,
-										  const char* file_name_of_simplicial_map,
-										  const char* persistence_file_name, 
-										  bool is_save_range_complex_with_annotation = false,
-										  const char* new_range_complex_file_name = NULL );
+extern int complexSize;
+extern int iThreshold;
+extern vector<float> vecFiltrationScale;
+
+//timer
+extern std::clock_t start, timer1;
+extern double dFuncTimeSum;
+extern double dInsertTime;
+extern double dCollapseTime;
+
+void ComputingPersistenceForSimplicialMap(const char* file_name_of_domain_complex,
+	bool is_domain_complex_with_annotation,
+	const char* file_name_of_range_complex,
+	const char* file_name_of_simplicial_map,
+	bool is_save_range_complex_with_annotation = false,
+	const char* new_range_complex_file_name = NULL);
+
+void ComputingPersistenceForSimplicialMapElementary(const char* file_name_of_domain_complex, 
+	bool is_domain_complex_with_annotation,
+	vector<string>& vecElemOpers,
+	bool is_save_range_complex_with_annotation = false,
+	const char* new_range_complex_file_name = NULL);
 
 /***********************************************/
-char * strLicenseSimPers = "THIS SOFTWARE IS PROVIDED \"AS-IS\". THERE IS NO WARRANTY OF ANY KIND. "
+char * strLicense = "THIS SOFTWARE IS PROVIDED \"AS-IS\". THERE IS NO WARRANTY OF ANY KIND. "
 "NEITHER THE AUTHORS NOR THE OHIO STATE UNIVERSITY WILL BE LIABLE FOR "
 "ANY DAMAGES OF ANY KIND, EVEN IF ADVISED OF SUCH POSSIBILITY. \n"
 "\n"
@@ -63,12 +81,15 @@ char * strLicenseSimPers = "THIS SOFTWARE IS PROVIDED \"AS-IS\". THERE IS NO WAR
 /**********************************************************************/
 bool ParseCommand(int argc, char** argv,
 	std::string &input_domain_complex_file_name,
-	std::string &input_range_complex_file_name,
-	std::string &input_simplicial_map_fileName,
+	std::string &input_range_complex_file_folder,
+	std::string &input_simplicial_map_file_folder,
 	std::string &output_range_complex_with_annotation_file_name,
 	std::string &output_persistence_file_name,
 	bool &is_input_domain_complex_with_annotation,
-	bool &is_output_range_complex_with_annotation) 
+	bool &is_output_range_complex_with_annotation,
+	bool &is_elementary,
+	int &iThres,
+	int &iFiltrationSize)
 {
 	try
 	{
@@ -79,14 +100,17 @@ bool ParseCommand(int argc, char** argv,
 		desc.add_options()
 			(",h", "Help information;")
 			(",l", "License information;")
-			(",d", po::value<std::string>(&input_domain_complex_file_name)->required(), "The file name for the simplicial complex in the domain of the simplicial map;")
-			(",r", po::value<std::string>(&input_range_complex_file_name)->required(), "The file name for the simplicial complex in the range of the simplicial map;")
-			(",m", po::value<std::string>(&input_simplicial_map_fileName)->required(), "The file name for input simplicial map;")
-			(",s", po::value<std::string>(&output_persistence_file_name)->required(), "The file name for saving the persistence of input simplicial map;")
-			("rsave", po::value<std::string>(&output_range_complex_with_annotation_file_name)->default_value(""), "The file name for saving the range simplicial complex with annotations;")
-			("rflag", po::value<bool>(&is_output_range_complex_with_annotation)->default_value(false), "The flag indicating to save range simplicial complex: yes (true) and no (false);")
-			("dflag", po::value<bool>(&is_input_domain_complex_with_annotation)->default_value(false), "The flag indicating to read domain simplicial complex with available annotations: yes (true) and no (false);");
- 		// Parser map
+			(",e", po::value<bool>(&is_elementary)->default_value(false), "The flag indicating input simplicial maps are elementary: yes (true) and no (false);")
+			(",n", po::value<int>(&iFiltrationSize)->required(), "# of simplicial maps;")
+			(",d", po::value<std::string>(&input_domain_complex_file_name)->required(), "The file name for the initial simplicial complex;")
+			("dflag", po::value<bool>(&is_input_domain_complex_with_annotation)->default_value(false), "Optional: The flag indicating to read intial simplicial complex with available annotations: yes (true) and no (false);")
+			(",m", po::value<std::string>(&input_simplicial_map_file_folder)->required(), "The file name(elementary) / folder(general) for input simplicial maps(see more details in readme file);")
+			(",r", po::value<std::string>(&input_range_complex_file_folder)->default_value(""), "The folder for input simplicial complexes in the range of each simplicial map(for general simplicial map only);")
+			(",s", po::value<std::string>(&output_persistence_file_name)->required(), "The file name for saving the persistence of input simplicial maps;")
+			(",t", po::value<int>(&iThres)->default_value(0), "The threshold for noise level of the persistence;")
+			("rflag", po::value<bool>(&is_output_range_complex_with_annotation)->default_value(false), "Optional: The flag indicating to save resulting simplicial complex: yes (true) and no (false);")
+			("rfile", po::value<std::string>(&output_range_complex_with_annotation_file_name)->default_value(""), "Optional: The file name for saving the resulting simplicial complex with annotations;");
+		// Parser map
 		po::variables_map vm;
 		try
 		{
@@ -96,61 +120,202 @@ bool ParseCommand(int argc, char** argv,
 			if (vm.count("-h"))
 			{
 				std::cout << desc << std::endl;
+				exit(EXIT_SUCCESS);
 			}
 			//
 			if (vm.count("-l"))
 			{
-				std::cout << strLicenseSimPers << std::endl;
+				std::cout << strLicense << std::endl;
+				exit(EXIT_SUCCESS);
 			}
 			//
 			po::notify(vm);
 		}
-		catch(boost::program_options::required_option& e)
+		catch (boost::program_options::required_option& e)
 		{
-			std::cerr<< "ERROR: " << e.what() << std::endl;
+			std::cerr << "ERROR: " << e.what() << std::endl;
 			return false;
 		}
-		catch(boost::program_options::error& e)
+		catch (boost::program_options::error& e)
 		{
-			std::cerr<< "ERROR: " << e.what() << std::endl;
+			std::cerr << "ERROR: " << e.what() << std::endl;
 			return false;
 		}
 	}
-	catch(std::exception& e)
+	catch (std::exception& e)
 	{
 		std::cerr << "Unhandled Exception reached the top of main: "
-					<< e.what() << ", application will now exit" << std::endl;
+			<< e.what() << ", application will now exit" << std::endl;
 		return false;
 
 	}
 	return true;
 }
-
 /*********************/
 /*int main(int argc, char **argv)
 {
-	//
+	start = std::clock();
+
 	std::string input_domain_complex_file_name;
-	std::string input_range_complex_file_name;
-	std::string input_simplicial_map_fileName;
+	std::string input_range_complex_file_folder;
+	std::string input_simplicial_map_file;		//file for elementary operations and folder for genaral maps
 	std::string output_range_complex_with_annotation_file_name;
 	std::string output_persistence_file_name;
 	bool is_input_domain_complex_with_annotation = false;
-	bool is_output_range_complex_with_annotation = false; 
-
-	//
-	if (ParseCommand(argc, argv, input_domain_complex_file_name, 
-		input_range_complex_file_name, 
-		input_simplicial_map_fileName, 
-		output_range_complex_with_annotation_file_name, 
-		output_persistence_file_name, 
-		is_input_domain_complex_with_annotation, 
-		is_output_range_complex_with_annotation))
+	bool is_output_range_complex_with_annotation = false;
+	bool is_elementary = true;
+	int numFiltration;
+	string sDelimiter("#");
+	vecFiltrationScale.push_back(0);
+	float fMaxScale = 0.0;
+	if (ParseCommand(argc, argv, input_domain_complex_file_name,
+		input_range_complex_file_folder,
+		input_simplicial_map_file,
+		output_range_complex_with_annotation_file_name,
+		output_persistence_file_name,
+		is_input_domain_complex_with_annotation,
+		is_output_range_complex_with_annotation,
+		is_elementary,
+		iThreshold,
+		numFiltration))
 	{
-		ComputingPersistenceForSimplicialMap(input_domain_complex_file_name.c_str(), is_input_domain_complex_with_annotation,
-			input_range_complex_file_name.c_str(), input_simplicial_map_fileName.c_str(), output_persistence_file_name.c_str(), 
-			is_output_range_complex_with_annotation, output_range_complex_with_annotation_file_name.c_str());
+		if (!is_elementary)
+		{
+			if (input_range_complex_file_folder.empty())
+			{
+				std::cout << "In general simplicial map mode, parameter -r is required." << endl;
+				return 0;
+			}
+		}
+		ifstream ifs_m;
+		for (int i = 1; i <= numFiltration; i++)
+		{
+			if (!is_elementary)
+			{
+				string sRC = input_range_complex_file_folder;
+				string sMap = input_simplicial_map_file;
+				stringstream ss;
+				ss << i;
+				sRC += "/";
+				sRC += ss.str();
+				sRC += ".txt";
+				sMap += "/";
+				sMap += ss.str();
+				sMap += ".txt";
+				//timer
+				timer1 = std::clock();
+				if (i == numFiltration)
+				{
+					filtration_step = i;
+					ComputingPersistenceForSimplicialMap(input_domain_complex_file_name.c_str(), is_input_domain_complex_with_annotation,
+						sRC.c_str(), sMap.c_str(), is_output_range_complex_with_annotation,
+						output_range_complex_with_annotation_file_name.c_str());
+				}
+				else
+				{
+					if (i == 1)
+						filtration_step = 0;
+					else
+						filtration_step = i;
+					ComputingPersistenceForSimplicialMap(input_domain_complex_file_name.c_str(), is_input_domain_complex_with_annotation,
+						sRC.c_str(), sMap.c_str(), false,
+						output_range_complex_with_annotation_file_name.c_str());
+				}
+				dFuncTimeSum += (std::clock() - timer1) / (double)CLOCKS_PER_SEC;
+			}
+			else
+			{
+				if (i == 1)
+				{
+					ifs_m.open(input_simplicial_map_file);
+					if (!ifs_m.is_open())
+					{
+						std::cout << "can't open file!" << endl;
+						return 0;
+					}
+				}
+				vector<string> vecOpers;
+				string sOper;
+				char sLine[256];
+				while (ifs_m.getline(sLine, 256))
+				{
+					if (sLine[0] == '#')
+					{
+						stringstream ss;
+						ss.str(sLine);
+						string sSharp;
+						float fScale;
+						ss >> sSharp;
+						ss >> fScale;
+						vecFiltrationScale.push_back(fScale);
+						break;
+					}
+					sOper = sLine;
+					vecOpers.push_back(sOper);
+				}
+				//timer
+				timer1 = std::clock();
+				if (i == numFiltration)
+				{
+					filtration_step = i;
+					ComputingPersistenceForSimplicialMapElementary("", false,
+						vecOpers, is_output_range_complex_with_annotation,
+						output_range_complex_with_annotation_file_name.c_str());
+				}
+				else
+				{
+					if (i == 1)
+						filtration_step = 0;
+					else
+						filtration_step = i;
+					ComputingPersistenceForSimplicialMapElementary(input_domain_complex_file_name.c_str(), is_input_domain_complex_with_annotation,
+						vecOpers, false,
+						output_range_complex_with_annotation_file_name.c_str());
+				}
+				dFuncTimeSum += (std::clock() - timer1) / (double)CLOCKS_PER_SEC;
+			}
+		}
+		ifs_m.close();
+		ifs_m.clear();
 	}
-	//
+
+	ofstream ofs(output_persistence_file_name);
+	for (int i = 0; i < persistences.size(); ++i)
+	{
+		ofs << "Dim " << i << ": " << endl;
+		std::unordered_map<int, pair<int, int>>::iterator it;
+		for (it = persistences[i].begin(); it != persistences[i].end(); ++it)
+
+		{
+			ofs << vecFiltrationScale[(it->second).first] << " ";
+			if ((it->second).second == -1)
+				ofs << "inf" << endl;
+			else
+				ofs << vecFiltrationScale[(it->second).second] << endl;
+		}
+		ofs << endl;
+	}
+	ofs.close();
+	ofs.clear();
+	for (int k = 0; k < vecFiltrationScale.size(); ++k)
+	{
+		if (vecFiltrationScale[k] > fMaxScale)
+			fMaxScale = vecFiltrationScale[k];
+	}
+
+	//output timing result
+	dInsertTime = dInsertTime / (double)CLOCKS_PER_SEC;
+	dCollapseTime = dCollapseTime / (double)CLOCKS_PER_SEC;
+	dFuncTimeSum = dInsertTime + dCollapseTime;
+	ofstream ofsTime("Timing.txt");
+	ofsTime << "Total time: " << (std::clock() - start) / (double)CLOCKS_PER_SEC << "s" << endl;
+	ofsTime << "Operation time: " << dFuncTimeSum << "s" << endl;
+	ofsTime << "Insert time: " << dInsertTime << "s" << endl;
+	ofsTime << "Collapse time: " << dCollapseTime << "s" << endl;
+	ofsTime << "Max Complex Size: " << complexSize << endl;
+	ofsTime << "Max Scale: " << fMaxScale << endl;
+	ofsTime.close();
+	ofsTime.clear();
+
 	return 0;
 }*/

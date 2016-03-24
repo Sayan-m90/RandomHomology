@@ -1,5 +1,5 @@
 /*
-(c) 2013 Fengtao Fan
+(c) 2015 Fengtao Fan, Dayu Shi
 */
 #include "SimplexNodeSP.h"  
 #include <vector>
@@ -424,6 +424,17 @@ void UnionFindDeletion::DeleteFromReducedTree(TreeNodePtr a)
 		// 
 	//} 
 	//
+	//break cycles
+	to_be_deleted->elem.reset();
+	to_be_deleted->parent.reset();
+	to_be_deleted->cListHead.reset();
+	to_be_deleted->cPrev.reset();
+	to_be_deleted->cNext.reset();
+	to_be_deleted->nPrev.reset();
+	to_be_deleted->nNext.reset();
+	to_be_deleted->dfsPrev.reset();
+	to_be_deleted->dfsNext.reset();
+
 	return;
 }
 void UnionFindDeletion::LocalRebuild(TreeNodePtr &p)
@@ -541,6 +552,16 @@ void UnionFindDeletion::Delete(TreeNodePtr a)
 		//elemSet.erase(del->elem->value);
 		//  
 		LocalRebuild(delParent);
+		//break cycles
+		del->elem.reset();
+		del->parent.reset();
+		del->cListHead.reset();
+		del->cPrev.reset();
+		del->cNext.reset();
+		del->nPrev.reset();
+		del->nNext.reset();
+		del->dfsPrev.reset();
+		del->dfsNext.reset();
 	} 
 	return;
 }
