@@ -77,71 +77,46 @@ void DeltaSparseSampling_GraphDistance( const SimpleGraph &eps_rips_graph,
 void ComputeBiColoredGraph(const float eps_sampling_dist, const float delta_dist, const bool graph_distance_flag, const PointSet &inPts,
 						std::map<int, int> &SubPointIndex, SimpleGraph &biColoredGraph)
 {
-	//
 	SimpleGraph RipsGraph;
 	std::vector<int> ColorMapping;
-	//
+
 	ConstructRipsGraph(eps_sampling_dist, inPts, RipsGraph);
-	//
+
 	//std::cout << "org comp " << RipsGraph.CheckComponents() << std::endl;
 	// generate the batch file for creating rips using this rips graph
 	// Delat-Sparse-Sampling and construct rips graph on sub-sampling points
 	if (graph_distance_flag)
 	{
 		ComputeEdgeWeights(inPts, RipsGraph);
-		//
-//		std::vector<std::vector<float> > pts;
-//        		std::vector<float> tmp(inPts._dimension);
-//        		pts.reserve(inPts._PointSet->size());
-//        		for (unsigned int i = 0; i < inPts._PointSet->size(); i++)
-//        		{
-//
-//        			for (unsigned int j = 0; j < inPts._dimension; j++)
-//        			{
-//        				tmp[j] = (*inPts._PointSet)[i][j];
-//        			}
-//        			pts.push_back(tmp);
-//        		}
-//        		RipsGraph.WriteWeightedGraph("test_wg_pts.txt", pts);
-//        		exit(0);
-		//
-		//RipsGraph.WriteWeightedGraph("test_wg.txt", pts);
-		//exit(0);
-		//
 		DeltaSparseSampling_GraphDistance(RipsGraph, delta_dist, SubPointIndex, ColorMapping);
 	}
 	else
 		DeltaSparseSampling_EuclideanDistance(inPts, delta_dist, SubPointIndex, ColorMapping);
-	//
 
 	// construct the bi-colored graph from the org rips graph
 	ANNSearch::SetColorMappingAndExtractColoredGraph(ColorMapping, RipsGraph, biColoredGraph);
-	//
+
 	//std::cout << "bic comp " << biColoredGraph.CheckComponents() << std::endl;
-	biColoredGraph.color_number = (int)SubPointIndex.size();
-	//RipsGraph.WriteBackToFile("test_rip.txt");
+	biColoredGraph.color_number = (int) SubPointIndex.size();
 	return;
 }
 void ComputeBiColoredGraph(const char* pFileName, const float delta_dist, std::vector<std::vector<float> > &pts,
 						std::map<int, int> &SubPointIndex, SimpleGraph &biColoredGraph)
 {
-	//
 	SimpleGraph orgGraph;
 	std::vector<int> ColorMapping;
-	//
+
 	orgGraph.ReadWeightedGaph(pFileName, pts);
-	//
+	
 	//std::cout << "org comp " << RipsGraph.CheckComponents() << std::endl;
 	// generate the batch file for creating rips using this rips graph
 	// Delat-Sparse-Sampling and construct rips graph on sub-sampling points
 
 	DeltaSparseSampling_GraphDistance(orgGraph, delta_dist, SubPointIndex, ColorMapping);
 
-	//
-
 	// construct the bi-colored graph from the org rips graph
 	ANNSearch::SetColorMappingAndExtractColoredGraph(ColorMapping, orgGraph, biColoredGraph);
-	//
+
 	//std::cout << "bic comp " << biColoredGraph.CheckComponents() << std::endl;
 	biColoredGraph.color_number = (int)SubPointIndex.size();
 	//RipsGraph.WriteBackToFile("test_rip.txt");
@@ -433,7 +408,7 @@ bool ParseCommand(int argc, char** argv,
 }
 
 /*********************/
-/*int main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	//
 	std::string InputFileName;
@@ -498,4 +473,3 @@ bool ParseCommand(int argc, char** argv,
 	//
 	return 0;
 }
-*/

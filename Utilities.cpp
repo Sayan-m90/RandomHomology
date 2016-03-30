@@ -102,3 +102,58 @@ void Utilities::WriteCollapsesToFile(string fp, vector<Operation*> &collapses) {
     }
     out_file_iDC.close();
 }
+
+void Utilities::ReadInBarcode(string fp, vector<vector<Barcode*>> &barcodes) {
+    ifstream input(fp);
+    cout << fp << endl;
+    vector<Barcode *> bc;
+    
+    ofstream out_file;
+    out_file.open (fp + ".dgm");
+    
+    if (input.is_open()) {
+        int dim = -1;
+        while (!input.eof()) {
+            string s;
+            getline(input, s);
+            vector<string> strs;
+            
+            if (s.find("Dim") != -1) {
+                if (bc.size() > 0) {
+                    barcodes.push_back(bc);
+                    vector<Barcode *> new_bc;
+                    bc = new_bc;
+                }
+                dim += 1;
+            } else {
+                vector<string> strs;
+                boost::split(strs, s, boost::is_any_of(Constants::SEPARATOR_STR));
+                if (strs.size() == 2) {
+                    Barcode *b = new Barcode();
+                    b->dim = dim;
+                    if (strs[0].compare("inf") == 0) {
+                        b->start = std::numeric_limits<double>::max();
+                    } else {
+                        b->start = stod(strs[0]);
+                    }
+                    
+                    if (strs[1].compare("inf") == 0) {
+                        b->end = std::numeric_limits<double>::max();
+                    } else {
+                        b->end = stod(strs[1]);
+                    }
+                    
+                    out_file << dim << " " << strs[0] << " " << strs[1] << endl;
+                    bc.push_back(b);
+                }
+            }
+        }
+        if (barcodes.size() > 0) {
+            barcodes.push_back(bc);
+        }
+    } else {
+        cout << "Couldn't open file" << endl;
+    }
+    
+    out_file.close();
+}

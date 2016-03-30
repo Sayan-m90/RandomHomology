@@ -127,7 +127,7 @@ public:
     void DrawMortonCode(MortonCode &c);
     void DrawGIC(GIC &g);
     void ViewCollapses(GIC &g, vector<Operation *> c);
-    void ViewBarcode(vector<Barcode> &bc);
+    void ViewBarcode(vector<vector<Barcode>> &bc);
 };
 
 

@@ -7,3 +7,7 @@
 //
 
 #include "Barcode.hpp"
+
+Barcode::Barcode() {
+
+}

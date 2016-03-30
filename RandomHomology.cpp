@@ -39,7 +39,7 @@ void RandomHomology::collapseToClosest(MortonPoint p,
         ANNpoint query_point;
         ANNidxArray nn_ids;
         ANNdistArray dists;
-        int k = (int) pow(2, i);
+        int k = min((int) pow(2, i), (int)initial_points.size());
         double eps = .1;
         query_point = annAllocPt(dim, 0.);
         nn_ids = new ANNidx[k];

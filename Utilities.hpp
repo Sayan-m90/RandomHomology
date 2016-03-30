@@ -20,6 +20,7 @@
 #include "ANN/ANN.h"
 #include "MortonCode.hpp"
 #include "Viewer.hpp"
+#include "Barcode.hpp"
 
 using std::string;
 using std::vector;
@@ -42,6 +43,7 @@ public:
                                    vector<double> &maxes,
                                    int dim, int n);
     static void WriteCollapsesToFile(string fp, vector<Operation*> &collapses);
+    static void ReadInBarcode(string fp, vector<vector<Barcode*>> &bc);
 };
 
 #endif /* Utilities_hpp */

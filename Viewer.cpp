@@ -751,7 +751,7 @@ void Viewer::ViewCollapses(GIC &g, vector<Operation *> collapses) {
     int time_index = 0;
     int collapse_index = 0;
     vector<vector<int>> vertex_map;
-    while (time_index < Constants::MAX_NUM_COLLAPSES) {
+    while (time_index < Constants::MAX_NUM_COLLAPSES && collapse_index < collapses.size()) {
         while (collapses[collapse_index]->Type() != TIME_OP){
             if (collapses[collapse_index]->Type() == COLLAPSE_OP) {
                 Collapse *c = (Collapse *) collapses[collapse_index];
@@ -789,6 +789,8 @@ void Viewer::ViewCollapses(GIC &g, vector<Operation *> collapses) {
 
 
 // TODO (me): implement
-void ViewBarcode(vector<Barcode> &bc) {
-
+void Viewer::ViewBarcode(vector<vector<Barcode>> &bc) {
+    filepath = "";
+    
+    
 }

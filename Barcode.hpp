@@ -11,10 +11,12 @@
 
 #include <stdio.h>
 
-struct Barcode {
+class Barcode {
+public:
     int dim;
     double start;
     double end;
+    Barcode();
 };
 
 #endif /* Barcode_hpp */

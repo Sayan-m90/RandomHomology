@@ -42,8 +42,8 @@ void SimpersWrapper::Run(vector<Operation *> c,
     // input range??
     string input_range_complex_file_folder = "/";
     string input_simplicial_map_file = fp + "_collapses";
-    string output_range_complex_with_annotation_file_name = "/Users/billvarcho/Desktop/Tests/out_file_1";
-    string output_persistence_file_name = "/Users/billvarcho/Desktop/Tests/out_file_2";
+    string output_range_complex_with_annotation_file_name = fp + "_out_file_1";
+    string output_persistence_file_name = fp + "_out_file_2";
     bool is_input_domain_complex_with_annotation = false;
     bool is_output_range_complex_with_annotation = false;
     bool is_elementary = true;
@@ -51,7 +51,7 @@ void SimpersWrapper::Run(vector<Operation *> c,
     
     // TODO(me): dont hardcode lol
     iThreshold = 0;
-    int numFiltration = 57;
+    int numFiltration = 51;
     start = std::clock();
 
     string sDelimiter("#");
