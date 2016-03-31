@@ -55,7 +55,7 @@ int main(int argc, const char * argv[]) {
 //    Utilities::ReadInBarcode(bc_fp, barcodes);
 }
 
-// For sayan
+// For sayan generates the subsampled points
 //    vector<vector<double>> pts;
 //    Utilities::ReadInPoints(pts, "/Users/billvarcho/Desktop/OLD/Data/bunny_points.txt");
 //    MortonCode *mc = new MortonCode(pts);
@@ -68,7 +68,7 @@ int main(int argc, const char * argv[]) {
 //        }
 //    }
 
-
+// generates the graph on original points into g.
 //KNN_Graph *g = new KNN_Graph("/Users/billvarcho/Desktop/Tests/FundamentalObjects/Torus.txt", 8);
 //g->writeToFile();
 
