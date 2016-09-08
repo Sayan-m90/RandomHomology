@@ -17,7 +17,7 @@
 #include <cstring>
 
 /* declaration of simpicial tree*/
-template<class T>
+template<typename T>
 class SimplicialTree
 {
 public:
@@ -26,8 +26,9 @@ public:
 	SimplicialTree() : dim(-1), Simplicies_Cnt(NULL), EuclideanDataPtr(NULL)
 	{
 	}
+    
 	// constructor with vertex number and dim
-	SimplicialTree(const int in_dim, const int v_number, T* inDataPtr ) : dim(in_dim) , EuclideanDataPtr(inDataPtr)
+    SimplicialTree(const int in_dim, const int v_number, T *inDataPtr ) : dim(in_dim) , EuclideanDataPtr(inDataPtr)
 	{// dim >= 0
 		Simplicies_Cnt = new int[dim + 1];
 		Simplicies_Cnt[0] = v_number; // v_number >= 0
@@ -37,11 +38,11 @@ public:
 		vertex_array.resize(Simplicies_Cnt[0]);
 		for (int i = 0; i < Simplicies_Cnt[0]; i++)
 		{
-			SimplicialTreeNode_ptr p(new SimplicialTreeNode(i,
+			GICSimplicialTreeNode_ptr p(new GICSimplicialTreeNode(i,
 															i,
-															SimplicialTreeNode_ptr(),
+															GICSimplicialTreeNode_ptr(),
 															Map_int_stnPtr_ptr(),
-															SimplicialTreeNode_ptr()
+															GICSimplicialTreeNode_ptr()
 															)
 															);
 			vertex_array[i] = p;
@@ -54,9 +55,10 @@ public:
 		for (int i = 0; i < Simplicies_Cnt[0]; i++)
 		{
 			for (int j = 0; j < dim; j++) // dim zero is not included
-				head_circular_list_in_each_dim[i].push_back(SimplicialTreeNode_ptr());
+				head_circular_list_in_each_dim[i].push_back(GICSimplicialTreeNode_ptr());
 		}
 	}
+
 	/*deconstructor */
 	~SimplicialTree()
 	{
@@ -95,7 +97,7 @@ public:
 		return;
 	}
 	//
-	bool InsertCircularList(SimplicialTreeNode_ptr & head, const SimplicialTreeNode_ptr & elem) ;
+	bool InsertCircularList(GICSimplicialTreeNode_ptr & head, const GICSimplicialTreeNode_ptr & elem) ;
 //{
 //	if (head) // check the shared ptr is null
 //	{// not null
@@ -116,9 +118,9 @@ public:
 //	return true;
 //}
 	// retrieve boundary
-	bool Boundary(const SimplicialTreeNode_ptr& sigma, std::vector<SimplicialTreeNode_ptr> &bdries);
+	bool Boundary(const GICSimplicialTreeNode_ptr& sigma, std::vector<GICSimplicialTreeNode_ptr> &bdries);
 	// retrieve coboundary
-	bool CoBoundary(const SimplicialTreeNode_ptr sigma, std::vector<SimplicialTreeNode_ptr> coBdries);
+	bool CoBoundary(const GICSimplicialTreeNode_ptr sigma, std::vector<GICSimplicialTreeNode_ptr> coBdries);
 	// construct the complex
 	virtual bool Construction() = 0;
 	// build a filtration
@@ -135,16 +137,16 @@ public:
 	int dim; // dimension of the simpicial complex
 	int *Simplicies_Cnt; // # of simplicies in each dimension
 	//
-	std::vector<SimplicialTreeNode_ptr> vertex_array; // dimension zero simplicies
+	std::vector<GICSimplicialTreeNode_ptr> vertex_array; // dimension zero simplicies
 	//
-	std::vector<std::vector<SimplicialTreeNode_ptr> > head_circular_list_in_each_dim;
+	std::vector<std::vector<GICSimplicialTreeNode_ptr> > head_circular_list_in_each_dim;
 };
 template <class T>
-bool SimplicialTree<T>::Boundary(const SimplicialTreeNode_ptr& sigma, std::vector<SimplicialTreeNode_ptr> &bdries)
+bool SimplicialTree<T>::Boundary(const GICSimplicialTreeNode_ptr& sigma, std::vector<GICSimplicialTreeNode_ptr> &bdries)
 {
 	// traverse back to the root to get all boundary faces
-	SimplicialTreeNode_ptr pIter(sigma);
-	SimplicialTreeNode_ptr pBdryFace;
+	GICSimplicialTreeNode_ptr pIter(sigma);
+	GICSimplicialTreeNode_ptr pBdryFace;
 	// vertex simplex doesn't have boundary
 	// the half vertex set
 	std::set<int> tail_ver_index_set;
@@ -189,7 +191,7 @@ bool SimplicialTree<T>::Boundary(const SimplicialTreeNode_ptr& sigma, std::vecto
 	return true;
 }
 template <class T>
-bool SimplicialTree<T>::InsertCircularList(SimplicialTreeNode_ptr & head, const SimplicialTreeNode_ptr & elem)
+bool SimplicialTree<T>::InsertCircularList(GICSimplicialTreeNode_ptr & head, const GICSimplicialTreeNode_ptr & elem)
 {
 	if (head) // check the shared ptr is null
 	{// not null
@@ -237,16 +239,16 @@ bool SimplicialTree<T>::InsertCircularList(SimplicialTreeNode_ptr & head, const 
 //			{
 //				if (head_circular_list_in_each_dim[vid][i - 1]) // i-1 as vertex are stored in an array
 //				{// the circular list is not empty
-//					SimplicialTreeNode_ptr pIter(head_circular_list_in_each_dim[vid][i - 1]);
+//					GICSimplicialTreeNode_ptr pIter(head_circular_list_in_each_dim[vid][i - 1]);
 //					do
 //					{// visit each simplex
-//						std::vector<SimplicialTreeNode_ptr> bdries;
+//						std::vector<GICSimplicialTreeNode_ptr> bdries;
 //						//
 //						int curSimplexIndex = pIter->index_in_filtration;
 //						Boundary(pIter, bdries);
 //						// get the index
 //						std::set<int> bdryIndices;
-//						for (std::vector<SimplicialTreeNode_ptr>::iterator vIter = bdries.begin();
+//						for (std::vector<GICSimplicialTreeNode_ptr>::iterator vIter = bdries.begin();
 //								vIter != bdries.end();
 //								vIter++)
 //						{
@@ -335,11 +337,11 @@ void SimplicialTree<T>::ReadFromFile(const char* pFileName)
 		vertex_array.resize(Simplicies_Cnt[0]);
 		for (int i = 0; i < Simplicies_Cnt[0]; i++)
 		{
-			SimplicialTreeNode_ptr p(new SimplicialTreeNode(i,
+			GICSimplicialTreeNode_ptr p(new GICSimplicialTreeNode(i,
 															i,
-															SimplicialTreeNode_ptr(),
+															GICSimplicialTreeNode_ptr(),
 															Map_int_stnPtr_ptr(),
-															SimplicialTreeNode_ptr()
+															GICSimplicialTreeNode_ptr()
 															)
 															);
 			vertex_array[i] = p;
@@ -353,7 +355,7 @@ void SimplicialTree<T>::ReadFromFile(const char* pFileName)
 		for (int i = 0; i < Simplicies_Cnt[0]; i++)
 		{
 			for (int j = 0; j < dim; j++) // dim zero is not included
-				head_circular_list_in_each_dim[i].push_back(SimplicialTreeNode_ptr());
+				head_circular_list_in_each_dim[i].push_back(GICSimplicialTreeNode_ptr());
 		}
 		// now add edges and other simplices
 		int simplex_counter = Simplicies_Cnt[0];
@@ -372,18 +374,18 @@ void SimplicialTree<T>::ReadFromFile(const char* pFileName)
 			if (!sstr.good())
 				break;
 			// get the parent of current simplex
-			SimplicialTreeNode_ptr curParent = vertex_array[simplex_vertex[0]];
+			GICSimplicialTreeNode_ptr curParent = vertex_array[simplex_vertex[0]];
 			for (int i = 1; i < simplex_dim; i++)
 			{
 				curParent = (*curParent->children_map_ptr)[simplex_vertex[i]];
 			}
 			// construct a simplex
 			Simplicies_Cnt[simplex_dim]++;
-			SimplicialTreeNode_ptr pSimp(new SimplicialTreeNode(simplex_vertex[simplex_dim],
+			GICSimplicialTreeNode_ptr pSimp(new GICSimplicialTreeNode(simplex_vertex[simplex_dim],
 															simplex_counter++,
 															curParent,
 															Map_int_stnPtr_ptr(),
-															SimplicialTreeNode_ptr()
+															GICSimplicialTreeNode_ptr()
 															)
 															);
 			// link it into the simplicial tree
@@ -393,7 +395,7 @@ void SimplicialTree<T>::ReadFromFile(const char* pFileName)
 			}
 			else
 			{
-				Map_int_stnPtr_ptr pMap(new std::map<int, SimplicialTreeNode_ptr>);
+				Map_int_stnPtr_ptr pMap(new std::map<int, GICSimplicialTreeNode_ptr>);
 				(*pMap.get())[simplex_vertex[simplex_dim]] = pSimp;
 				curParent->children_map_ptr = pMap;
 			}
@@ -484,11 +486,11 @@ void SimplicialTree<T>::WriteBackToFile(const char* pFileName)
 				{
 					if (head_circular_list_in_each_dim[vid][i - 1]) // i-1 as vertex are stored in an array
 					{// the circular list is not empty
-						SimplicialTreeNode_ptr pIter(head_circular_list_in_each_dim[vid][i - 1]);
+						GICSimplicialTreeNode_ptr pIter(head_circular_list_in_each_dim[vid][i - 1]);
 						do
 						{// visit each simplex
 							sstr << i << " ";
-							SimplicialTreeNode_ptr pParentIter(pIter);
+							GICSimplicialTreeNode_ptr pParentIter(pIter);
 							//
 							do
 							{
@@ -521,4 +523,19 @@ void SimplicialTree<T>::WriteBackToFile(const char* pFileName)
 	//
 	return;
 }
+
+
+class GIComplex : public SimplicialTree<SimpleGraph>
+{
+public:
+    GIComplex()
+    {
+    };
+    
+    GIComplex(const int in_dim, const int v_number, SimpleGraph *inDataPtr) : SimplicialTree(in_dim, v_number, inDataPtr) {
+    }
+    bool Construction(); //virtual
+};
+
+
 #endif // _SIMPLICIAL_TREE_H_

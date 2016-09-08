@@ -12,17 +12,16 @@
 #include <map>
 #include <algorithm>
 
-class GIComplex : public SimplicialTree<SimpleGraph>
-{
-public:
-	GIComplex()
-	{
-	}
-	GIComplex(const int in_dim, const int v_number, SimpleGraph* inDataPtr ) :
-				SimplicialTree(in_dim, v_number, inDataPtr)
-	{
-	}
-	 bool Construction(); //virtual
-};
+//class GIComplex : public SimplicialTree<SimpleGraph>
+//{
+//public:
+//	GIComplex()
+//	{
+//    };
 //
+//    GIComplex(const int in_dim, const int v_number, SimpleGraph *inDataPtr) : SimplicialTree(in_dim, v_number, inDataPtr) {
+//    }
+//    bool Construction(); //virtual
+//};
+
 #endif //_GI_COMPLEX_H_

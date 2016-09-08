@@ -100,6 +100,7 @@ void ComputeBiColoredGraph(const float eps_sampling_dist, const float delta_dist
 	biColoredGraph.color_number = (int) SubPointIndex.size();
 	return;
 }
+
 void ComputeBiColoredGraph(const char* pFileName, const float delta_dist, std::vector<std::vector<float> > &pts,
 						std::map<int, int> &SubPointIndex, SimpleGraph &biColoredGraph)
 {
@@ -122,6 +123,7 @@ void ComputeBiColoredGraph(const char* pFileName, const float delta_dist, std::v
 	//RipsGraph.WriteBackToFile("test_rip.txt");
 	return;
 }
+
 void WriteOFFformatComplex(const char* pFileName, const std::vector<std::vector<float> > &pts, std::map<int, int> &subPointIndices, GIComplex &gic)
 {
 	std::cout << "Writing < " << pFileName << " >" << std::endl;
@@ -174,11 +176,11 @@ void WriteOFFformatComplex(const char* pFileName, const std::vector<std::vector<
 				{
 					if (gic.head_circular_list_in_each_dim[vid][i - 1]) // i-1 as vertex are stored in an array
 					{// the circular list is not empty
-						SimplicialTreeNode_ptr pIter(gic.head_circular_list_in_each_dim[vid][i - 1]);
+						GICSimplicialTreeNode_ptr pIter(gic.head_circular_list_in_each_dim[vid][i - 1]);
 						do
 						{// visit each simplex
 							sstr << i + 1<< " ";
-							SimplicialTreeNode_ptr pParentIter(pIter);
+							GICSimplicialTreeNode_ptr pParentIter(pIter);
 							//
 							do
 							{
@@ -249,11 +251,11 @@ void WriteOFFformatComplex(const char* pFileName, const PointSet &pts, std::map<
 				{
 					if (gic.head_circular_list_in_each_dim[vid][i - 1]) // i-1 as vertex are stored in an array
 					{// the circular list is not empty
-						SimplicialTreeNode_ptr pIter(gic.head_circular_list_in_each_dim[vid][i - 1]);
+						GICSimplicialTreeNode_ptr pIter(gic.head_circular_list_in_each_dim[vid][i - 1]);
 						do
 						{// visit each simplex
 							sstr << i + 1<< " ";
-							SimplicialTreeNode_ptr pParentIter(pIter);
+							GICSimplicialTreeNode_ptr pParentIter(pIter);
 							//
 							do
 							{
@@ -408,7 +410,7 @@ bool ParseCommand(int argc, char** argv,
 }
 
 /*********************/
-int main(int argc, char **argv)
+/*int main(int argc, char **argv)
 {
 	//
 	std::string InputFileName;
@@ -472,4 +474,4 @@ int main(int argc, char **argv)
 	}
 	//
 	return 0;
-}
+}*/

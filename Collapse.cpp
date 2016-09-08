@@ -26,11 +26,6 @@ Insert::Insert(vector<int> ids) {
 }
 
 void Insert::Print() {
-//    cout << "insert ";
-//    for (int i = 0; i < v_id.size() - 1; i++) {
-//        cout << v_id[i] << " ";
-//    }
-//    cout << v_id[v_id.size() - 1] << endl;
     cout << PrintString();
 }
 

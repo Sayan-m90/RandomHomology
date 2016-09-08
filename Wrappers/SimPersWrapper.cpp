@@ -1,197 +1,209 @@
-//
-//  SimPersWrapper.cpp
-//  RandomHomology
-//
-//  Created by Bill Varcho on 3/10/16.
-//  Copyright © 2016 Bill Varcho. All rights reserved.
-//
+/*
+(c) 2016 Jyamiti Group, CSE, OSU
+*/
 
 #include "SimPersWrapper.hpp"
 
-extern int complexSize;
-extern int iThreshold;
+extern std::vector<int> complexSizes;
+extern std::vector<int> accumulativeSizes;
+extern int accumulativeSize;
+extern float fThreshold;
 extern vector<float> vecFiltrationScale;
-
-extern std::clock_t start, timer1;
+extern SimplicialTree<bool> domain_complex;
+//extern SimplicialTree<bool> range_complex;
+//
+//timer
+extern clock_t start, timer1, timer2;
 extern double dFuncTimeSum;
 extern double dInsertTime;
 extern double dCollapseTime;
+extern int max_dimension;
 
 void ComputingPersistenceForSimplicialMap(const char* file_name_of_domain_complex,
-                                          bool is_domain_complex_with_annotation,
-                                          const char* file_name_of_range_complex,
-                                          const char* file_name_of_simplicial_map,
-                                          bool is_save_range_complex_with_annotation = false,
-                                          const char* new_range_complex_file_name = NULL);
+    bool is_domain_complex_with_annotation,
+    const char* file_name_of_range_complex,
+    const char* file_name_of_simplicial_map,
+    bool is_save_range_complex_with_annotation = false,
+    const char* new_range_complex_file_name = NULL);
 
 void ComputingPersistenceForSimplicialMapElementary(const char* file_name_of_domain_complex,
-                                                    bool is_domain_complex_with_annotation,
-                                                    vector<string>& vecElemOpers,
-                                                    bool is_save_range_complex_with_annotation = false,
-                                                    const char* new_range_complex_file_name = NULL);
+    bool is_domain_complex_with_annotation,
+    vector<string>& vecElemOpers,
+    bool is_save_range_complex_with_annotation = false,
+    const char* new_range_complex_file_name = NULL);
 
-void SimpersWrapper::Run(vector<Operation *> c,
+/***********************************************/
+
+int SimpersWrapper::Run(vector<Operation *> &collapses,
                          //vector<Barcode> &output,
-                         string fp) {
-    
-    // eventually use operations directly instead of writing to file
-    cout << "Running SimPers" << endl;
-    
-    start = std::clock();
-    string input_domain_complex_file_name = fp + "_iDC";
-    // input range??
-    string input_range_complex_file_folder = "/";
-    string input_simplicial_map_file = fp + "_collapses";
-    string output_range_complex_with_annotation_file_name = fp + "_out_file_1";
-    string output_persistence_file_name = fp + "_out_file_2";
+                         string fp) 
+
+{
+    start = clock();
+
+    cout<<"Running Simpers"<<endl;
+    std::string input_domain_complex_file_name;
+    std::string input_range_complex_file_folder;
+    std::string input_simplicial_map_file;      //file name for elementary mode and folder name for genaral mode
+    std::string output_range_complex_with_annotation_file_name;
+    std::string output_persistence_file_name;
     bool is_input_domain_complex_with_annotation = false;
     bool is_output_range_complex_with_annotation = false;
     bool is_elementary = true;
-    
-    
-    // TODO(me): dont hardcode lol
-    iThreshold = 0;
-    int numFiltration = 51;
-    start = std::clock();
-
+    //indicate if persistence barcode is ordered according to death time
+    bool bDeathTimeOrder = true;
+    int numFiltration;
     string sDelimiter("#");
     vecFiltrationScale.push_back(0);
     float fMaxScale = 0.0;
-    if (!is_elementary)
-    {
-        if (input_range_complex_file_folder.empty())
-        {
-            std::cout << "In general simplicial map mode, parameter -r is required." << endl;
-            return;
-        }
-    }
+    input_domain_complex_file_name = fp+"_iDC";
+    input_range_complex_file_folder = fp;
+    input_simplicial_map_file = fp+"_collapses";
+    output_range_complex_with_annotation_file_name = fp + "_range";
+    output_persistence_file_name = fp + "_pers";
+    is_input_domain_complex_with_annotation = false;
+    is_output_range_complex_with_annotation = true;
+    is_elementary = true;
+    fThreshold = 0;
+    numFiltration = 4;
+    max_dimension = 2;
+        
+    
     ifstream ifs_m;
-    for (int i = 1; i <= numFiltration; i++)
+    ifs_m.open(input_simplicial_map_file);
+    if (!ifs_m.is_open())
     {
-        if (!is_elementary)
-        {
-            string sRC = input_range_complex_file_folder;
-            string sMap = input_simplicial_map_file;
-            stringstream ss;
-            ss << i;
-            sRC += "/";
-            sRC += ss.str();
-            sRC += ".txt";
-            sMap += "/";
-            sMap += ss.str();
-            sMap += ".txt";
-            //timer
-            timer1 = std::clock();
-            if (i == numFiltration)
-            {
-                filtration_step = i;
-                ComputingPersistenceForSimplicialMap(input_domain_complex_file_name.c_str(), is_input_domain_complex_with_annotation,
-                                                     sRC.c_str(), sMap.c_str(), is_output_range_complex_with_annotation,
-                                                     output_range_complex_with_annotation_file_name.c_str());
-            }
-            else
-            {
-                if (i == 1)
-                    filtration_step = 0;
-                else
-                    filtration_step = i;
-                ComputingPersistenceForSimplicialMap(input_domain_complex_file_name.c_str(), is_input_domain_complex_with_annotation,
-                                                     sRC.c_str(), sMap.c_str(), false,
-                                                     output_range_complex_with_annotation_file_name.c_str());
-            }
-            dFuncTimeSum += (std::clock() - timer1) / (double)CLOCKS_PER_SEC;
-        }
-        else
-        {
-            if (i == 1)
-            {
-                ifs_m.open(input_simplicial_map_file);
-                if (!ifs_m.is_open())
-                {
-                    std::cout << "can't open file!" << endl;
-                    return;
-                }
-            }
-            vector<string> vecOpers;
-            string sOper;
-            char sLine[256];
-            while (ifs_m.getline(sLine, 256))
-            {
-                if (sLine[0] == '#')
-                {
-                    stringstream ss;
-                    ss.str(sLine);
-                    string sSharp;
-                    float fScale;
-                    ss >> sSharp;
-                    ss >> fScale;
-                    vecFiltrationScale.push_back(fScale);
-                    break;
-                }
-                sOper = sLine;
-                vecOpers.push_back(sOper);
-            }
-            //timer
-            timer1 = std::clock();
-            if (i == numFiltration)
-            {
-                filtration_step = i;
-                ComputingPersistenceForSimplicialMapElementary("", false,
-                                                               vecOpers, is_output_range_complex_with_annotation,
-                                                               output_range_complex_with_annotation_file_name.c_str());
-            }
-            else
-            {
-                if (i == 1)
-                    filtration_step = 0;
-                else
-                    filtration_step = i;
-                ComputingPersistenceForSimplicialMapElementary(input_domain_complex_file_name.c_str(), is_input_domain_complex_with_annotation,
-                                                               vecOpers, false,
-                                                               output_range_complex_with_annotation_file_name.c_str());
-            }
-            dFuncTimeSum += (std::clock() - timer1) / (double)CLOCKS_PER_SEC;
-        }
+        std::cout << "can't open file!" << endl;
+        return 0;
     }
+    filtration_step = 0;
+    int stepsize = 0;
+    ofstream myfile;
+    myfile.open ("fromRandom.txt",ios::out);
+    auto t = collapses[stepsize];
+    while( stepsize<collapses.size() ) //while (!(ifs_m.eof()))
+    {
+        //t= collapses[stepsize];
+        vector<string> vecOpers;
+        string sOper;
+        char sLine[256];
+        bool bValid = false;
+        while(t = collapses[stepsize])//while (ifs_m.getline(sLine, 256))
+        {
+            
+            strcpy(sLine,(t->PrintString()).c_str());
+            myfile<<sLine;
+            if (sLine[0] == '#')
+            {
+                bValid = true;
+                stringstream ss;
+                ss.str(sLine);
+                string sSharp;
+                float fScale;
+                ss >> sSharp;
+                ss >> fScale;
+                vecFiltrationScale.push_back(fScale);
+                break;
+            }
+            sOper = sLine;
+            vecOpers.push_back(sOper);
+            stepsize++;
+        }
+        if (bValid)
+        {
+            //timer
+            timer2 = clock();
+            ComputingPersistenceForSimplicialMapElementary(input_domain_complex_file_name.c_str(),
+                is_input_domain_complex_with_annotation,
+                vecOpers, false,
+                output_range_complex_with_annotation_file_name.c_str());
+            dFuncTimeSum += (clock() - timer2);
+        }
+        stepsize++;
+    }
+    //cout<<"Exited loop check for the from Random file";
+    //getchar();
     ifs_m.close();
     ifs_m.clear();
+    myfile.close();
+    myfile.clear();
+    if (is_output_range_complex_with_annotation)
+        domain_complex.WriteComplexWithAnnotation(output_range_complex_with_annotation_file_name.c_str());
 
-    
-    ofstream ofs(output_persistence_file_name);
+    ofstream ofsTime("Timing.txt");
+    cout << "Simpers Total time without I/O: " << (clock() - start) / (double)CLOCKS_PER_SEC << "s" << endl;
+    ofsTime << "Simpers Total time without I/O: " << (clock() - start) / (double)CLOCKS_PER_SEC << "s" << endl;
+    //output persistence barcode
+    ofstream ofs_dgm(output_persistence_file_name);
     for (int i = 0; i < persistences.size(); ++i)
     {
-        ofs << "Dim " << i << ": " << endl;
-        std::unordered_map<int, pair<int, int>>::iterator it;
-        for (it = persistences[i].begin(); it != persistences[i].end(); ++it)
-            
+        std::vector<std::pair<int, int>> vecBarcodes;
+        for (std::unordered_map<int, pair<int, int>>::iterator it = persistences[i].begin(); it != persistences[i].end(); ++it)
         {
-            ofs << vecFiltrationScale[(it->second).first] << " ";
-            if ((it->second).second == -1)
-                ofs << "inf" << endl;
+            if (bDeathTimeOrder)
+                vecBarcodes.push_back(std::make_pair((it->second).first, (it->second).second));
             else
-                ofs << vecFiltrationScale[(it->second).second] << endl;
+            {
+                ofs_dgm << i << " " << vecFiltrationScale[(it->second).first] << " ";
+                if ((it->second).second == -1)
+                    ofs_dgm << "inf" << endl;
+                else
+                    ofs_dgm << vecFiltrationScale[(it->second).second] << endl;
+            }
         }
-        ofs << endl;
+        if (bDeathTimeOrder)
+        {
+            std::stable_sort(vecBarcodes.begin(), vecBarcodes.end(), barcodeCompare);
+            for (int k = 0; k < vecBarcodes.size(); ++k)
+            {
+                ofs_dgm << i << " " << vecFiltrationScale[vecBarcodes[k].first] << " ";
+                if (vecBarcodes[k].second == -1)
+                    ofs_dgm << "inf" << endl;
+                else
+                    ofs_dgm << vecFiltrationScale[vecBarcodes[k].second] << endl;
+            }
+        }
     }
-    ofs.close();
-    ofs.clear();
+    ofs_dgm.close();
+    ofs_dgm.clear();
+    
+    //find the maximum scale
     for (int k = 0; k < vecFiltrationScale.size(); ++k)
     {
         if (vecFiltrationScale[k] > fMaxScale)
             fMaxScale = vecFiltrationScale[k];
     }
-    
+
     //output timing result
-    dInsertTime = dInsertTime / (double)CLOCKS_PER_SEC;
-    dCollapseTime = dCollapseTime / (double)CLOCKS_PER_SEC;
-    dFuncTimeSum = dInsertTime + dCollapseTime;
-    ofstream ofsTime("Timing.txt");
-    ofsTime << "Total time: " << (std::clock() - start) / (double)CLOCKS_PER_SEC << "s" << endl;
-    ofsTime << "Operation time: " << dFuncTimeSum << "s" << endl;
-    ofsTime << "Insert time: " << dInsertTime << "s" << endl;
-    ofsTime << "Collapse time: " << dCollapseTime << "s" << endl;
-    ofsTime << "Max Complex Size: " << complexSize << endl;
+    dFuncTimeSum = dFuncTimeSum / (double)CLOCKS_PER_SEC;
+    
+    ofsTime << "Simpers Total time: " << (clock() - start) / (double)CLOCKS_PER_SEC << "s" << endl;
+    cout << "Simpers Total time: " << (clock() - start) / (double)CLOCKS_PER_SEC << "s" << endl;
+    //ofsTime << "Simpers computation time: " << dFuncTimeSum << "s" << endl;
+    //cout << "Simpers computation time: " << dFuncTimeSum << "s" << endl;
+
+    ofstream ofs_size("size.txt");
+    int maxCS = 0;
+    ofs_size << "Scales : Complex Sizes" << endl;
+    for (int i = 0; i < vecFiltrationScale.size(); ++i)
+    {
+        ofs_size << vecFiltrationScale[i] << " : " << complexSizes[i] << endl;
+        if (complexSizes[i] > maxCS)
+            maxCS = complexSizes[i];
+    }
+    ofs_size << "Cumulative Complex size: " << accumulativeSizes.back() << endl;
+    ofs_size << endl;
+    ofs_size.close();
+    ofs_size.clear();
+
+    ofsTime << "Max Complex Size: " << maxCS << endl;
+    cout << "Max Complex Size: " << maxCS << endl;
+    ofsTime << "Cumulative Complex Size: " << accumulativeSizes.back() << endl;
+    cout << "Cumulative Complex Size: " << accumulativeSizes.back() << endl;
     ofsTime << "Max Scale: " << fMaxScale << endl;
+    cout << "Max Scale: " << fMaxScale << endl;
     ofsTime.close();
     ofsTime.clear();
+
+return 0;
 }

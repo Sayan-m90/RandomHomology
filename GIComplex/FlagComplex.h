@@ -40,7 +40,7 @@ public:
 //			SimpleGraphNode & gNode = EuclideanDataPtr->vecNode[i];
 //			if (!gNode.adjList.empty())
 //			{
-//				Map_int_stnPtr_ptr pMap(new std::map<int, SimplicialTreeNode_ptr>);
+//				Map_int_stnPtr_ptr pMap(new std::map<int, GICSimplicialTreeNode_ptr>);
 //
 //				for(std::set<int>::iterator sIter = gNode.adjList.begin(); 
 //											sIter != gNode.adjList.end();
@@ -48,11 +48,11 @@ public:
 //				{
 //					cur_dim_simplex_size++;// increase the # of edges
 //					//
-//					SimplicialTreeNode_ptr pStn(new SimplicialTreeNode(*sIter, // v_index
+//					GICSimplicialTreeNode_ptr pStn(new GICSimplicialTreeNode(*sIter, // v_index
 //																	vertex_array[i], // parent
 //																	Map_int_stnPtr_ptr(),
-//																	SimplicialTreeNode_ptr(),
-//																	SimplicialTreeNode_ptr()
+//																	GICSimplicialTreeNode_ptr(),
+//																	GICSimplicialTreeNode_ptr()
 //																	)
 //																	);
 //					// link into the circular list of *sIter
@@ -87,13 +87,13 @@ public:
 //				{
 //					if (head_circular_list_in_each_dim[vid][depth - 1])
 //					{// the circular list is not empty
-//						SimplicialTreeNode_ptr pIter(head_circular_list_in_each_dim[vid][depth - 1]);
+//						GICSimplicialTreeNode_ptr pIter(head_circular_list_in_each_dim[vid][depth - 1]);
 //						do
 //						{// visit each simplex
 //							// get previous (depth - 1) intersection set
 //							std::set<int> prevIntersection;
 //							int ver_index = pIter->last_label;
-//							for (std::map<int, SimplicialTreeNode_ptr>::iterator 
+//							for (std::map<int, GICSimplicialTreeNode_ptr>::iterator 
 //								mIter = pIter->parent_ptr->children_map_ptr->begin();
 //								mIter != pIter->parent_ptr->children_map_ptr->end();
 //								mIter++)
@@ -110,16 +110,16 @@ public:
 //																			curIntersection.begin());
 //							if (interIter - curIntersection.begin() > 0)
 //							{// create new simplicies 
-//								Map_int_stnPtr_ptr pMap(new std::map<int, SimplicialTreeNode_ptr>);
+//								Map_int_stnPtr_ptr pMap(new std::map<int, GICSimplicialTreeNode_ptr>);
 //								for (int sid = 0; sid < interIter - curIntersection.begin(); sid++)
 //								{
 //									cur_dim_simplex_size++;// increase the # of edges
 //									//
-//									SimplicialTreeNode_ptr pStn(new SimplicialTreeNode(curIntersection[sid], // v_index
+//									GICSimplicialTreeNode_ptr pStn(new GICSimplicialTreeNode(curIntersection[sid], // v_index
 //																					pIter, // parent
 //																					Map_int_stnPtr_ptr(),
-//																					SimplicialTreeNode_ptr(),
-//																					SimplicialTreeNode_ptr()
+//																					GICSimplicialTreeNode_ptr(),
+//																					GICSimplicialTreeNode_ptr()
 //																					)
 //																					);
 //									// link into the circular list of *sIter

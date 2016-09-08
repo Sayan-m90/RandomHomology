@@ -23,7 +23,7 @@ bool operator<(const MortonPoint &a, const MortonPoint &b) {
  *-------------------------------------*/
 //int MortonPoint::id = 0;
 
-MortonPoint::MortonPoint(const vector<double> pt, int min, int max, int id) {
+MortonPoint::MortonPoint(const vector<float> pt, int min, int max, int id) {
     point = pt;
     vector<uint64_t> scaled_coords;
     for (int i = 0; i < pt.size(); i++) {
@@ -58,25 +58,25 @@ MortonPoint::MortonPoint(const vector<double> pt, int min, int max, int id) {
  |  Morton Code Constructors         |
  *-----------------------------------*/
 
-MortonCode::MortonCode(const vector<vector<double>> &points) {
+MortonCode::MortonCode(const vector<vector<float>> &points) {
     bbox_max = 1;
     bbox_min = -1;
     priority_queue<MortonPoint> queue;
     int i = 0;
-    for (vector<double> pt : points) {
+    for (vector<float> pt : points) {
         add(pt, i);
         i++;
     }
 }
 
-MortonCode::MortonCode(const vector<vector<double>> &points,
-                       const vector<double> &min_bounds,
-                       const vector<double> &max_bounds) {
+MortonCode::MortonCode(const vector<vector<float>> &points,
+                       const vector<float> &min_bounds,
+                       const vector<float> &max_bounds) {
     bbox_min = *min_element(min_bounds.begin(), min_bounds.end()) + .1;
     bbox_max = *max_element(min_bounds.begin(), min_bounds.end()) - .1;
     priority_queue<MortonPoint> queue;
     int i = 0;
-    for (vector<double> pt : points) {
+    for (vector<float> pt : points) {
         add(pt, i);
         i++;
     }
@@ -87,7 +87,7 @@ MortonCode::MortonCode(GIC g) {
     bbox_min = g.bb_min;
     int i = 0;
     priority_queue<MortonPoint> queue;
-    for (vector<double> pt : g.pts) {
+    for (vector<float> pt : g.pts) {
         add(pt, i);
         i++;
     }
@@ -97,7 +97,7 @@ MortonCode::MortonCode(GIC g) {
  |  Morton Code Class Methods        |
  *-----------------------------------*/
 
-void MortonCode::add(vector<double> pt, int id) {
+void MortonCode::add(vector<float> pt, int id) {
     MortonPoint mp = MortonPoint(pt, bbox_min, bbox_max, id);
     queue.push(mp);
 }
@@ -106,13 +106,13 @@ void MortonCode::add(MortonPoint pt) {
     queue.push(pt);
 }
 
-vector<double> MortonCode::next() {
+vector<float> MortonCode::next() {
     if (!empty()) {
         MortonPoint next_point = queue.top();
         queue.pop();
         return next_point.point;
     } else {
-        vector<double> x;
+        vector<float> x;
         x.push_back(-1);
         return x;
     }
@@ -138,4 +138,12 @@ bool MortonCode::empty() {
 
 int MortonCode::size() {
     return (int) queue.size();
+}
+
+vector<MortonPoint> MortonCode::GetOrdering() {
+    vector<MortonPoint> order;
+    while (!empty()) {
+        order.push_back(nextPoint());
+    }
+    return order;
 }

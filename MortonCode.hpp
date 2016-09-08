@@ -26,12 +26,12 @@ class MortonPoint {
     //static int id;
  public:
     int p_id;
-    vector<double> point;
+    vector<float> point;
     // for the bit interleaving we need len(point) * 64 bits
     // which are stored here (in Big Endian)
     vector<uint64_t> code;
 
-    MortonPoint(vector<double> pt, int min, int max, int id);
+    MortonPoint(vector<float> pt, int min, int max, int id);
     ~MortonPoint() {}
 };
 
@@ -43,17 +43,18 @@ class MortonCode {
 
  public:
     priority_queue<MortonPoint> queue;
-    explicit MortonCode(const vector<vector<double>> &points);
-    MortonCode(const vector<vector<double>> &points,
-               const vector<double> &min_bounds,
-               const vector<double> &max_bounds);
+    explicit MortonCode(const vector<vector<float>> &points);
+    MortonCode(const vector<vector<float>> &points,
+               const vector<float> &min_bounds,
+               const vector<float> &max_bounds);
     MortonCode(GIC g);
     ~MortonCode() {}
 
-    void add(vector<double> pt, int id);
+    void add(vector<float> pt, int id);
     void add(MortonPoint pt);
-    vector<double> next();
+    vector<float> next();
     MortonPoint nextPoint();
+    vector<MortonPoint> GetOrdering();
     void setPoints(vector<MortonPoint> pts);
     bool empty();
     int size();

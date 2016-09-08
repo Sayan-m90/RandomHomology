@@ -533,7 +533,7 @@ void PointSet::SampleCircleProductSphere(const int xgridSize,
   /* initialize random seed: */
 	srand ( time(NULL) );
 	const int max_int = std::numeric_limits<int>::max() ;
-	const int max_int_f = float (max_int) ;
+	const int max_int_f =  (max_int) ;
 	float recArray[5];
 	for (int i = 0; i < xgridSize; i++)
 	{
@@ -584,7 +584,7 @@ void PointSet::SampleCircleProductCircle(const int xgridSize,
   /* initialize random seed: */
 	//srand ( time(NULL) );
 	const int max_int = std::numeric_limits<int>::max() ;
-	const int max_int_f = float (max_int) ;
+	const int max_int_f =  (max_int) ;
 	float recArray[4];
 	for (int i = 0; i < xgridSize; i++)
 	{

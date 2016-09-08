@@ -8,9 +8,9 @@
 
 #include "RandomHomology.hpp"
 
-RandomHomology::RandomHomology(vector<vector<double>> &points,
-                               vector<double> &min_bounds,
-                               vector<double> &max_bounds, int _dim) {
+RandomHomology::RandomHomology(vector<vector<float>> &points,
+                               vector<float> &min_bounds,
+                               vector<float> &max_bounds, int _dim) {
     dim = _dim;
     initial_points = points;
     mc = new MortonCode(points, min_bounds, max_bounds);
@@ -40,7 +40,7 @@ void RandomHomology::collapseToClosest(MortonPoint p,
         ANNidxArray nn_ids;
         ANNdistArray dists;
         int k = min((int) pow(2, i), (int)initial_points.size());
-        double eps = .1;
+        double eps = .01;
         query_point = annAllocPt(dim, 0.);
         nn_ids = new ANNidx[k];
         dists = new ANNdist[k];
@@ -75,6 +75,7 @@ void RandomHomology::collapseToClosest(MortonPoint p,
 }
 
 void RandomHomology::run(double alpha, vector<Operation*> &collapses) {
+    
     int count = 0;
     // initial inserts
     for (int i = 0; i < indices.size(); i++) {
@@ -95,13 +96,18 @@ void RandomHomology::run(double alpha, vector<Operation*> &collapses) {
     while (mc->size() > 1) {
         // this is for every iteration
         int s = mc->size();
+
         // create another queue
         vector<MortonPoint> keep_pts;
         vector<MortonPoint> remove_pts;
         for (int i = 0; i < s; i++) {
             MortonPoint n = mc->nextPoint();
+
+            //int precision = (int)(alpha*100);
+            //cout<<"mc.size: "<<mc->size()<<"precision: "<<precision;
+            //getchar();
             // TODO(me): modify this to respect input parameter alpha
-            if (i%10 != 0) { //  somewhat arbitrary, should include alpha
+            if (i%((int)alpha) == 0) { //  accounting for precision.  it is rejecting every precision th point. higher alpha -> accepts less.. courses scale
                 keep_pts.push_back(n);
             } else {
                 remove_pts.push_back(n);

@@ -9,21 +9,25 @@
 #ifndef SimPersWrapper_hpp
 #define SimPersWrapper_hpp
 
-#include "Barcode.hpp"
-#include "Collapse.hpp"
-#include "SimplicialComplexSP.h"
+#include "../Barcode.hpp"
+#include "../Collapse.hpp"
+#include "../Constants.hpp"
+#include "../SimPers/SimplicialComplex.h"
 #include <iostream>
 #include <stdio.h>
 #include <vector>
 #include <cmath>
 #include <sstream>
 #include <unordered_set>
+#include <ctime>
+#include <fstream>
+#include <boost/program_options.hpp>
 
 using std::vector;
 
 class SimpersWrapper {
 public:
-    static void Run(vector<Operation *> c,
+    static int Run(vector<Operation *> &c,
                     //vector<Barcode> &output,
                     string fp);
 };

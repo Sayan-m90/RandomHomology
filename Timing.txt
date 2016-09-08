@@ -1,0 +1,5 @@
+Simpers Total time without I/O: 50.8151s
+Simpers Total time: 50.8206s
+Max Complex Size: 602802
+Cumulative Complex Size: 1183072
+Max Scale: 16

@@ -11,25 +11,25 @@
 
 /* declaration of simpicial tree node*/
 
-class SimplicialTreeNode;
+class GICSimplicialTreeNode;
 
 /* shared pointer to simplicial tree node */
 
-typedef boost::shared_ptr<SimplicialTreeNode> SimplicialTreeNode_ptr;
+typedef boost::shared_ptr<GICSimplicialTreeNode> GICSimplicialTreeNode_ptr;
 
 /* sibling structure for each node */
 
-typedef std::map<int, SimplicialTreeNode_ptr> Map_int_stnPtr;
+typedef std::map<int, GICSimplicialTreeNode_ptr> Map_int_stnPtr;
 
 /* shared pointer to <int, stn_ptr> mapping*/
 
 typedef boost::shared_ptr<Map_int_stnPtr> Map_int_stnPtr_ptr;
 
-class SimplicialTreeNode
+class GICSimplicialTreeNode
 {
 public:
 	// constructor
-	SimplicialTreeNode() :
+	GICSimplicialTreeNode() :
 		last_label(-1),
 		index_in_filtration(-1),
 		parent_ptr(),
@@ -38,11 +38,11 @@ public:
 	{
 	}
 
-	SimplicialTreeNode(const int v_index,
+	GICSimplicialTreeNode(const int v_index,
 						const int idx_filtration,
-		SimplicialTreeNode_ptr  in_parent_ptr, //& changed for ubuntu
+		GICSimplicialTreeNode_ptr  in_parent_ptr, //& changed for ubuntu
 		Map_int_stnPtr_ptr  in_children_map_ptr, //&
-		SimplicialTreeNode_ptr in_next_circular_ptr ) : //&
+		GICSimplicialTreeNode_ptr in_next_circular_ptr ) : //&
 				last_label(v_index),
 				index_in_filtration(idx_filtration),
 				parent_ptr(in_parent_ptr),
@@ -54,9 +54,9 @@ public:
 public:
 	int last_label;
 	int index_in_filtration;
-	SimplicialTreeNode_ptr parent_ptr;
+	GICSimplicialTreeNode_ptr parent_ptr;
 	Map_int_stnPtr_ptr children_map_ptr;
-	SimplicialTreeNode_ptr next_circular_ptr;
+	GICSimplicialTreeNode_ptr next_circular_ptr;
 };
 
 #endif // _SIMPLICIAL_TREE_NODE_H_

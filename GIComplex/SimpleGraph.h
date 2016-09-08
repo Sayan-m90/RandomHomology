@@ -11,6 +11,8 @@ Edges are recorded in the adjacent list only ONCE !
 #include <vector>
 #include <iterator>
 
+using std::vector;
+
 class SimpleGraphNode 
 { 
 public:
@@ -133,7 +135,21 @@ class SimpleGraph
 		vecNode.push_back(tmpNode);
 	} 
 	// 
-	void AddEdge(const int i, const int j, const  float w = 0.f)
+    void AddEdge(const int i, const int j)
+    {// each edge has only one copy
+        // stored into the adjList of smaller vertex index
+        if (i < j)
+        {
+            vecNode[i].edgeWeights[j] = 0.0f;
+        }
+        else
+        {
+            // i > j
+            vecNode[i].edgeWeights[i] = 0.0f;
+        }
+    }
+    
+    void AddEdge(const int i, const int j, const float w)
 	{// each edge has only one copy
 		// stored into the adjList of smaller vertex index
 		if (i < j)
@@ -199,6 +215,9 @@ class SimpleGraph
 	long int EdgeNum();
 	//
 	int CheckComponents();
+    
+    void SetCoords(vector<vector<float>> coords);
+    
 	//
 	public:
 		std::vector<SimpleGraphNode> vecNode;

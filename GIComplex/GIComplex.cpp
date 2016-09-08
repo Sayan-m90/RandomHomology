@@ -35,12 +35,12 @@ bool GIComplex::Construction()
 				{
 					if (rips_complex.head_circular_list_in_each_dim[vid][d - 1])
 					{
-						SimplicialTreeNode_ptr pIter(rips_complex.head_circular_list_in_each_dim[vid][d - 1]);
+						GICSimplicialTreeNode_ptr pIter(rips_complex.head_circular_list_in_each_dim[vid][d - 1]);
 						do
 						{// visit each simplex
 							// get the colors of this simplex
 							std::set<int> simplex_colors;
-							SimplicialTreeNode_ptr pSimplexIter(pIter);
+							GICSimplicialTreeNode_ptr pSimplexIter(pIter);
 							int simplex_dim = 0;
 							do
 							{
@@ -64,7 +64,7 @@ bool GIComplex::Construction()
 							{
 								if (pSimplexIter->children_map_ptr)
 								{
-									std::map<int, SimplicialTreeNode_ptr>::iterator mFindIter = pSimplexIter->children_map_ptr->find(*sIter);
+									std::map<int, GICSimplicialTreeNode_ptr>::iterator mFindIter = pSimplexIter->children_map_ptr->find(*sIter);
 									if ( mFindIter == pSimplexIter->children_map_ptr->end())
 									{
 										simplex_existence = false;
@@ -83,11 +83,11 @@ bool GIComplex::Construction()
 								int ver_index = *simplex_colors.rbegin();
 								cur_dim_simplex_size++;// increase the # of edges
 								//
-								SimplicialTreeNode_ptr pStn(new SimplicialTreeNode(ver_index, // v_index
+								GICSimplicialTreeNode_ptr pStn(new GICSimplicialTreeNode(ver_index, // v_index
 																				simplex_size++, // order in the filtration
 																				pSimplexIter, // parent
 																				Map_int_stnPtr_ptr(),
-																				SimplicialTreeNode_ptr()
+																				GICSimplicialTreeNode_ptr()
 																				)
 																				);
 								// link into the circular list of *sIter
@@ -100,7 +100,7 @@ bool GIComplex::Construction()
 								}
 								else
 								{
-									Map_int_stnPtr_ptr pMap(new std::map<int, SimplicialTreeNode_ptr>);
+									Map_int_stnPtr_ptr pMap(new std::map<int, GICSimplicialTreeNode_ptr>);
 									(*pMap.get())[ver_index] = pStn;
 									pSimplexIter->children_map_ptr = pMap;
 								}

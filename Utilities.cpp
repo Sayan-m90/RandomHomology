@@ -8,6 +8,8 @@
 
 #include "Utilities.hpp"
 
+#define EPSILON 1.0e-5
+
 void Utilities::CreateRandomPoints(vector<vector<double>> &pts,
                                    vector<double> &mins,
                                    vector<double> &maxes,
@@ -38,8 +40,6 @@ void Utilities::ReadInPoints(vector<vector<double>> &pts, string fp) {
     ifstream input(fp);
     if (input.is_open()) {
         while (!input.eof()) {
-            std::string sx, sy, sz;
-            double x, y, z;
             std::stringstream ss(std::stringstream::in |
                                  std::stringstream::out);
             string s;
@@ -54,34 +54,42 @@ void Utilities::ReadInPoints(vector<vector<double>> &pts, string fp) {
                 }
             }
             // add point to the vector
-            pts.push_back(pt);
+            if (pt.size() > 0) {
+                pts.push_back(pt);
+            }
         }
     }
+    input.close();
 }
 
-ANNkd_tree* Utilities::ConstructKDTree(vector<vector<double>> pts, int dim) {
-    int max_points = pts.size();
-    ANNpointArray data_points;
-    data_points = annAllocPts(max_points, dim);
-    
-    // pts to data points
-    for (int i = 0; i < max_points; i++) {
-        ANNpoint new_p = annAllocPt(dim);
-        vector<double> current_pt = pts[i];
-        for (int d = 0; d < dim; d++) {
-            new_p[d] = current_pt[d];
+void Utilities::ReadInPoints(vector<vector<float>> &pts, string fp) {
+    ifstream input(fp);
+    if (input.is_open()) {
+        while (!input.eof()) {
+            std::stringstream ss(std::stringstream::in |
+                                 std::stringstream::out);
+            string s;
+            getline(input, s);
+            vector<string> strs;
+            boost::split(strs, s, boost::is_any_of(Constants::SEPARATOR_STR));
+            vector<float> pt;
+            for (size_t i = 0; i < strs.size(); i++) {
+                if (strs[i].size() > 0) {
+                    float coord = stof(strs[i]);
+                    pt.push_back(coord);
+                }
+            }
+            // add point to the vector
+            if (pt.size() > 0) {
+                pts.push_back(pt);
+            }
         }
-        data_points[i] = new_p;
     }
-    
-    // create and return the kdtree
-    return new ANNkd_tree(data_points,
-                          max_points,
-                          dim);
+    input.close();
 }
 
 void Utilities::WriteCollapsesToFile(string fp, vector<Operation*> &collapses) {
-    cout << "Writing Collapses to File: " + fp << endl;
+    cout << "Writing Collapses to File: " + fp +"_collapses"<< endl;
     ofstream out_file;
     int num_simplices = 0;
     out_file.open (fp + "_collapses");
@@ -103,7 +111,8 @@ void Utilities::WriteCollapsesToFile(string fp, vector<Operation*> &collapses) {
     out_file_iDC.close();
 }
 
-void Utilities::ReadInBarcode(string fp, vector<vector<Barcode*>> &barcodes) {
+void Utilities::ReadInBarcode(string fp, vector<vector<Barcode*>> &barcodes,
+                              bool read_zero) {
     ifstream input(fp);
     cout << fp << endl;
     vector<Barcode *> bc;
@@ -120,6 +129,7 @@ void Utilities::ReadInBarcode(string fp, vector<vector<Barcode*>> &barcodes) {
             
             if (s.find("Dim") != -1) {
                 if (bc.size() > 0) {
+                    sort(bc.begin(), bc.end(), Barcode::Compare);
                     barcodes.push_back(bc);
                     vector<Barcode *> new_bc;
                     bc = new_bc;
@@ -132,28 +142,40 @@ void Utilities::ReadInBarcode(string fp, vector<vector<Barcode*>> &barcodes) {
                     Barcode *b = new Barcode();
                     b->dim = dim;
                     if (strs[0].compare("inf") == 0) {
-                        b->start = std::numeric_limits<double>::max();
+                        b->start = Constants::VIEWER_POS_INF_VALUE;
                     } else {
                         b->start = stod(strs[0]);
                     }
                     
                     if (strs[1].compare("inf") == 0) {
-                        b->end = std::numeric_limits<double>::max();
+                        b->end = Constants::VIEWER_POS_INF_VALUE;
                     } else {
                         b->end = stod(strs[1]);
                     }
                     
                     out_file << dim << " " << strs[0] << " " << strs[1] << endl;
-                    bc.push_back(b);
+                    // TODO(me): handle 'inf' edge case
+                    // Only add barcode if the length is greater than 0 (or
+                    // user specified that addition via read_zero)
+                    if (abs(b->end - b->start) > EPSILON ||
+                        b->end == Constants::VIEWER_POS_INF_VALUE ||
+                        read_zero) {
+                        bc.push_back(b);
+                    }
+                    
                 }
             }
         }
+        
         if (barcodes.size() > 0) {
+            sort(bc.begin(), bc.end(), Barcode::Compare);
             barcodes.push_back(bc);
         }
+        
     } else {
         cout << "Couldn't open file" << endl;
     }
     
+    input.close();
     out_file.close();
 }

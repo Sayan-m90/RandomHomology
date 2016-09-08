@@ -495,3 +495,7 @@ void SimpleGraph::ReadFromFile(char const * pFileName)
 	//
 	return;
 }
+
+void SimpleGraph::SetCoords(vector<vector<float>> new_coords) {
+    
+}

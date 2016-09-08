@@ -9,11 +9,12 @@
 #ifndef KNN_Graph_hpp
 #define KNN_Graph_hpp
 
-#include <stdio.h>
-#include <vector>
-#include <set>
 #include "ANN/ANN.h"
 #include "Utilities.hpp"
+#include "Graph.hpp"
+#include <set>
+#include <stdio.h>
+#include <vector>
 
 using std::cout;
 using std::endl;
@@ -29,20 +30,19 @@ using std::vector;
  | as initial graph instead of epsilon-delta graph.
  *---------------------------------------------------*/
 
-class KNN_Graph {
+class KNN_Graph : public Graph {
 private:
-    int K, dim;
-    set<pair<int, int>> edges;
-    vector<vector<double>> points;
+    int dim, K;
     ANNkd_tree* KD_tree;
     void Construct();
 public:
     KNN_Graph(int K);
     KNN_Graph(string fp, int K);
-    KNN_Graph(vector<vector<double>> pts, int K);
+    KNN_Graph(vector<vector<float>> pts, int K);
     ~KNN_Graph() {}
-    
-    void writeToFile(); // for now just prints to console
+    void writeToFile(string filepath);
+    void writeWeightedToFile(string filepath);
 };
+
 
 #endif /* KNN_Graph_hpp */

@@ -40,7 +40,7 @@ public:
     string fp;
     int dim;
     double bb_min, bb_max;
-    vector<vector<double>> pts;
+    vector<vector<float>> pts;
     vector<vector<int>> indices;
 };
 

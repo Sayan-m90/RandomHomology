@@ -12,11 +12,12 @@ GIC::GIC() {}
 
 GIC::GIC(string _fp) {
     fp = _fp;
-    ifstream input(fp);
+    ifstream input(fp);     //input is the complex file generated
+    
     bool done = false;
     int num_points;
-    double min_n = std::numeric_limits<double>::max();
-    double max_n = std::numeric_limits<double>::min();
+    float min_n = std::numeric_limits<float>::max();
+    float max_n = std::numeric_limits<float>::min();
     
     for (int i = 0; i < Constants::GIC_MAX_DIM_SIZE; i++) {
         vector<int> ndim_indicies;
@@ -38,17 +39,18 @@ GIC::GIC(string _fp) {
         while (point_count < num_points) {
             done = input.eof();
             std::string sx, sy, sz;
-            double x, y, z;
+            float x, y, z;
             std::stringstream ss(std::stringstream::in |
                                  std::stringstream::out);
             string s;
             getline(input, s);
+            
             vector<string> strs;
             boost::split(strs, s, boost::is_any_of(Constants::SEPARATOR_STR));
-            vector<double> pt;
+            vector<float> pt;
             for (size_t i = 0; i < strs.size(); i++) {
                 if (strs[i].size() > 0) {
-                    double coord = stod(strs[i]);
+                    float coord = stod(strs[i]);
                     pt.push_back(coord);
                     min_n = min(min_n, coord);
                     max_n = max(max_n, coord);
@@ -66,21 +68,26 @@ GIC::GIC(string _fp) {
             
             point_count += 1;
         }
+        int coord;
         
         // now read in the indices
         while (!input.eof()) {
             string s;
             vector<string> strs;
             getline(input, s);
+
             boost::split(strs, s, boost::is_any_of(Constants::SEPARATOR_STR));
             vector<int> ids;
             for (size_t i = 1; i < strs.size(); i++) {
-                if (strs[i].size() > 0) {
-                    int coord = stoi(strs[i]);
+                if (strs[i].size() > 0 ) {  
+                    coord = stoi(strs[i]);
                     ids.push_back(coord);
+                    //fflush(stdin);
+                    //cout<<strs.size()<<":"<<coord<<"      ";
+                    //getchar(); 
                 }
             }
-            
+           //cout<<"\n";
             for (int i : ids) {
                 indices[ids.size() - 1].push_back(i);
             }

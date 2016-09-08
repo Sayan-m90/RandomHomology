@@ -17,6 +17,14 @@ public:
     double start;
     double end;
     Barcode();
+    
+    bool operator < (Barcode const &other) {
+        return ((other.end - other.start) < (end - start));
+    }
+    
+    static bool Compare(Barcode* const a, Barcode* const b) {
+        return ((b->end - b->start) < (a->end - a->start));
+    }
 };
 
 #endif /* Barcode_hpp */

@@ -1,7 +1,7 @@
 /*
-(c) 2015 Fengtao Fan, Dayu Shi
+(c) 2016 Jyamiti Group, CSE, OSU
 */
-#include "SimplexNodeSP.h"  
+#include "SimplexNode.h"  
 #include <vector>
 #include <queue>
 #include <stack>
@@ -13,27 +13,27 @@ TreeRootNodePtr UnionFindDeletion::MakeSet(ElementNodePtr &elem)
 	//
 	//if (findIter == elemSet.end())
 	//{ 
-		//Create a new tree root node
-		TreeRootNodePtr root(boost::make_shared<TreeRootNode>());  
-		//Set double-links between the element node and the tree node
-		link_tree_node_and_element(root, elem); 
+	//Create a new tree root node
+	TreeRootNodePtr root(boost::make_shared<TreeRootNode>());
+	//Set double-links between the element node and the tree node
+	link_tree_node_and_element(root, elem);
 
-		/*Initializing tree root data*/
-		//Store the tree root in the forest
-		//forest[elem->value] = root;
-		//Store the element value in the hash of elments
-		//elemSet[elem->value] = elem;
-		 
-		/*Initializing tree node*/
-		//Set parent
-		root->parent = root;
-		//Set rank
-		root->rank = 0; 
-		root->cListSize = 0;
-		//Set dfsList
-		root->dfsNext = root;
-		root->dfsPrev = root;  
-		
+	/*Initializing tree root data*/
+	//Store the tree root in the forest
+	//forest[elem->value] = root;
+	//Store the element value in the hash of elments
+	//elemSet[elem->value] = elem;
+
+	/*Initializing tree node*/
+	//Set parent
+	root->parent = root;
+	//Set rank
+	root->rank = 0;
+	root->cListSize = 0;
+	//Set dfsList
+	root->dfsNext = root;
+	root->dfsPrev = root;
+
 	//}
 	//else
 	//{
@@ -53,8 +53,8 @@ void UnionFindDeletion::insert_into_nlist(TreeNodePtr a, TreeRootNodePtr &T)
 		T->nListHead->nPrev = a;
 		a->nPrev = tail;
 		tail->nNext = a;
-		a->nNext = T->nListHead; 
-		
+		a->nNext = T->nListHead;
+
 		T->nListHead = a;
 	}
 	else {
@@ -75,8 +75,8 @@ void UnionFindDeletion::insert_into_clist_and_dfs_list(TreeNodePtr a, TreeNodePt
 		parent->cListHead->cPrev = a;
 		a->cPrev = cListTail;
 		cListTail->cNext = a;
-		a->cNext = parent->cListHead; 
-		
+		a->cNext = parent->cListHead;
+
 		parent->cListHead = a;
 	}
 	else
@@ -84,21 +84,21 @@ void UnionFindDeletion::insert_into_clist_and_dfs_list(TreeNodePtr a, TreeNodePt
 		parent->cListHead = a;
 		a->cNext = a;
 		a->cPrev = a;
-	}  
+	}
 	//Add to dfsList of T_keep 
 	TreeNodePtr parent_dfsNext = parent->dfsNext;
 	TreeNodePtr child_dfsTail = a->dfsPrev;
-	
+
 	// parent-->a----a_tail->parent_next
 	// parent<--a----a_tail<--parent_next
 	a->dfsPrev = parent;
 	parent->dfsNext = a;
 
 	child_dfsTail->dfsNext = parent_dfsNext;
-	parent_dfsNext->dfsPrev = child_dfsTail; 
+	parent_dfsNext->dfsPrev = child_dfsTail;
 
 	//Update counters
-	parent->cListSize++; 
+	parent->cListSize++;
 
 	return;
 }
@@ -116,10 +116,10 @@ void UnionFindDeletion::LinkSingleNodeToTreeRoot(TreeNodePtr a, TreeRootNodePtr 
 	a->dfsPrev = a;
 	//
 	insert_into_clist_and_dfs_list(a, T);
- 
+
 	return;
 
-} 
+}
 TreeRootNodePtr UnionFindDeletion::Union(TreeRootNodePtr & a, TreeRootNodePtr & b)
 {
 	if (a == b) {
@@ -159,15 +159,15 @@ TreeRootNodePtr UnionFindDeletion::Union(TreeRootNodePtr & a, TreeRootNodePtr & 
 			}
 			LinkSingleNodeToTreeRoot(trav, alive);
 			trav = dead->cListHead;
-		} 
+		}
 		// 
-		LinkSingleNodeToTreeRoot(dead, alive); 
+		LinkSingleNodeToTreeRoot(dead, alive);
 		// update the root's rank
 		alive->rank = std::max(alive->rank, 1);
 		//
 	}
 	else
-	{ 
+	{
 		if (a->rank > b->rank)
 		{
 			dead = b;
@@ -188,7 +188,7 @@ TreeRootNodePtr UnionFindDeletion::Union(TreeRootNodePtr & a, TreeRootNodePtr & 
 	return alive;
 }
 void UnionFindDeletion::InsertIntoCList(TreeNodePtr p, TreeNodePtr ref, TreeNodePtr a, bool right)
-{ 
+{
 	//
 	a->parent = p;
 	if (p->cListHead)
@@ -219,7 +219,7 @@ void UnionFindDeletion::InsertIntoCList(TreeNodePtr p, TreeNodePtr ref, TreeNode
 	{
 		p->cListHead = a;
 		a->cNext = a;
-		a->cPrev = a; 
+		a->cPrev = a;
 	}
 	// 
 	p->cListSize++;
@@ -298,9 +298,9 @@ void UnionFindDeletion::InsertIntoNList(TreeRootNodePtr p, TreeNodePtr ref, Tree
 void UnionFindDeletion::Relink(TreeNodePtr a)
 {// p(p(a)) is not the root
 	TreeNodePtr p = a->parent;
-	if(a->cNext != p->cListHead)
+	if (a->cNext != p->cListHead)
 	{// a has a left sibling
-		TreeNodePtr L = a->cNext; 
+		TreeNodePtr L = a->cNext;
 		// remove a from CList of p
 		RemoveFromCList(a);
 		// add it into 
@@ -318,7 +318,7 @@ void UnionFindDeletion::Relink(TreeNodePtr a)
 		tail->dfsNext = p;
 		a->dfsPrev = p->dfsPrev;
 		p->dfsPrev->dfsNext = a;
-		p->dfsPrev = tail; 
+		p->dfsPrev = tail;
 	}
 	else
 	{
@@ -347,7 +347,7 @@ void UnionFindDeletion::Relink(TreeNodePtr a)
 		}
 
 	}
-} 
+}
 TreeRootNodePtr UnionFindDeletion::Find(TreeNodePtr a)
 {
 	while (a->parent->parent != a->parent)
@@ -356,7 +356,7 @@ TreeRootNodePtr UnionFindDeletion::Find(TreeNodePtr a)
 		Relink(a);
 		if (p->cListSize == 2)
 		{
-			while(p->cListSize > 0)
+			while (p->cListSize > 0)
 			{
 				Relink(p->cListHead);
 			}
@@ -365,7 +365,7 @@ TreeRootNodePtr UnionFindDeletion::Find(TreeNodePtr a)
 	}
 	TreeRootNodePtr root = find_root(a->parent);//forest[a->parent->elem->value];
 	return root;
-} 
+}
 void UnionFindDeletion::RemoveFromDFSList(TreeNodePtr a)
 {// a is not the root unless the tree contains only the root
 	if (a->parent == a)
@@ -397,7 +397,7 @@ void UnionFindDeletion::DeleteFromReducedTree(TreeNodePtr a)
 		ElementNodePtr rootElem = a->elem;
 		//
 		unlink_tree_node_and_element(a, rootElem);
-		unlink_tree_node_and_element(to_be_deleted, keepElem); 
+		unlink_tree_node_and_element(to_be_deleted, keepElem);
 		//
 		link_tree_node_and_element(a, keepElem);
 		link_tree_node_and_element(to_be_deleted, rootElem);
@@ -418,10 +418,10 @@ void UnionFindDeletion::DeleteFromReducedTree(TreeNodePtr a)
 	//
 	//if (to_be_deleted->parent == to_be_deleted)
 	//{// this is the root in the tree
-	 // destroy this class 
-		//
-		//forest.erase(to_be_deleted->elem->value);
-		// 
+	// destroy this class 
+	//
+	//forest.erase(to_be_deleted->elem->value);
+	// 
 	//} 
 	//
 	//break cycles
@@ -441,7 +441,7 @@ void UnionFindDeletion::LocalRebuild(TreeNodePtr &p)
 {
 	if (p->parent == p)
 	{// p is the root
-	 // relink the three left most children of a non-leaf node c.
+		// relink the three left most children of a non-leaf node c.
 		TreeRootNodePtr root = find_root(p);//forest[p->elem->value];
 		TreeNodePtr c = root->nListHead->nPrev;
 		//
@@ -458,7 +458,7 @@ void UnionFindDeletion::LocalRebuild(TreeNodePtr &p)
 	}
 	else {
 		if (p->cListSize < 5) {
-			while(p->cListSize > 0) {
+			while (p->cListSize > 0) {
 				Relink(p->cListHead->cPrev);
 			}
 		}
@@ -499,7 +499,7 @@ void UnionFindDeletion::Delete(TreeNodePtr a)
 	}
 	else
 	{
-		TreeNodePtr del = a; 
+		TreeNodePtr del = a;
 		// find leaf
 		if (a->cListSize > 0)
 		{
@@ -507,21 +507,21 @@ void UnionFindDeletion::Delete(TreeNodePtr a)
 			{// a is the root
 				del = a->dfsPrev;
 				//switch conents
-				ElementNodePtr keepElem = del->elem; 
-				ElementNodePtr delElem  = a->elem;
+				ElementNodePtr keepElem = del->elem;
+				ElementNodePtr delElem = a->elem;
 
 				unlink_tree_node_and_element(a, delElem);
 				unlink_tree_node_and_element(del, keepElem);
 
 				link_tree_node_and_element(a, keepElem);
-				link_tree_node_and_element(del, delElem); 
+				link_tree_node_and_element(del, delElem);
 				//
 				// update forest
 				//forest[a->elem->value] = forest[del->elem->value];
 				//forest.erase(del->elem->value);
 			}
 			else
-			{ 
+			{
 				if (a->cNext == a->parent->cListHead)
 				{// no left sibling
 					del = a->dfsPrev;
@@ -531,24 +531,24 @@ void UnionFindDeletion::Delete(TreeNodePtr a)
 					del = a->cNext->dfsPrev;
 				}
 				//switch contents
-				ElementNodePtr keepElem = del->elem; 
+				ElementNodePtr keepElem = del->elem;
 				ElementNodePtr delElem = a->elem;
 
 				unlink_tree_node_and_element(a, delElem);
 				unlink_tree_node_and_element(del, keepElem);
 
 				link_tree_node_and_element(a, keepElem);
-				link_tree_node_and_element(del, delElem); 
+				link_tree_node_and_element(del, delElem);
 			}
-		} 
+		}
 		//
 		TreeNodePtr delParent = del->parent;
 		// remove from CList
 		RemoveFromCList(del);
 		// remove from DFSList
-		RemoveFromDFSList(del); 
+		RemoveFromDFSList(del);
 		//
-		del->elem->tree_node.reset() ;
+		del->elem->tree_node.reset();
 		//elemSet.erase(del->elem->value);
 		//  
 		LocalRebuild(delParent);
@@ -562,7 +562,6 @@ void UnionFindDeletion::Delete(TreeNodePtr a)
 		del->nNext.reset();
 		del->dfsPrev.reset();
 		del->dfsNext.reset();
-	} 
+	}
 	return;
 }
- 

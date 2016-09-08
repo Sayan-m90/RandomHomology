@@ -20,10 +20,14 @@ public:
     const static char* FRAGMENT_SHADER;
     const static char* VERTEX_SHADER_GIC;
     const static char* FRAGMENT_SHADER_GIC;
+    const static char* VERTEX_SHADER_BARCODE;
+    const static char* FRAGMENT_SHADER_BARCODE;
     const static int GIC_MAX_DIM_SIZE;
     const static int MORTON_CODE_MULTIPLIER;
     const static int MOUSE_SPEED;
     const static int MAX_NUM_COLLAPSES;
+    const static int MAX_NUM_BARCODES;
+    const static int VIEWER_POS_INF_VALUE;
     const static string SEPARATOR_STR;
 };
 

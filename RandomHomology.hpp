@@ -29,10 +29,10 @@ public:
     ANNkd_tree *kd_tree;
     set<int>removed_ids;
     vector<vector<int>> indices;
-    vector<vector<double>> initial_points;
-    RandomHomology(vector<vector<double>> &points,
-                   vector<double> &min_bounds,
-                   vector<double> &max_bounds, int dim);
+    vector<vector<float>> initial_points;
+    RandomHomology(vector<vector<float>> &points,
+                   vector<float> &min_bounds,
+                   vector<float> &max_bounds, int dim);
     RandomHomology(GIC &g);
     ~RandomHomology() {};
     void run(double alpha);

@@ -23,12 +23,12 @@ struct Vertex{
     glm::vec4 outline_color;
     glm::vec2 textureCoord;
     glm::vec4 next_position;
-    // TODO: need better way of setting this
-    glm::vec4 positions[57];
+    // TODO(me): need better way of setting this
+    glm::vec4 positions[90];
     static int POS_INDEX;
     static int NEXT_POS_INDEX;
     //Helper functions to get memory offsets for GPU
-    static void updateIndices();
+    static void updateIndices(int max_time);
     static size_t offsetNormal(){       return sizeof(glm::vec4);}
     static size_t offsetColor(){        return sizeof(glm::vec3) + offsetNormal();}
     static size_t offsetColorOutline(){ return sizeof(glm::vec4) + offsetColor();}

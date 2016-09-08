@@ -29,8 +29,6 @@ public:
     virtual bool IsVertexInsert() {return false;}
 };
 
-// TODO(me): Update this class to include insertion of
-// arbitrary dimension simplices
 class Insert : public Operation {
 public:
     vector<int> v_id;
